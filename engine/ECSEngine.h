@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <cassert>
 
 #include "CameraComponent.h"
 #include "CollisionComponent.h"
@@ -71,7 +72,12 @@ template <typename... Components>
 ECSEngine<Components...>::~ECSEngine() {}
 
 template <typename... Components>
-void ECSEngine<Components...>::Run() {}
+void ECSEngine<Components...>::Run() {
+    // Update systems
+    assert(mSystemManager.Run(this));
+    // Draw window
+    
+}
 
 template <typename... Components>
 bool ECSEngine<Components...>::ProcessEvents() {

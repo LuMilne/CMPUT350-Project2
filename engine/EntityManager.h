@@ -43,6 +43,15 @@ public:
         return dummy;
     }
 
+    // *Added from template
+    using tEntity = std::vector<Entity>;
+	using const_iterator = tEntity::const_iterator;
+	const_iterator cbegin() const { return mEntities.begin(); }
+	const_iterator cend() const { return mEntities.end(); }
+	const_iterator begin() { return mEntities.begin(); }
+	const_iterator end() { return mEntities.end(); }
+    // *
+
 private:
 };
 
