@@ -3,11 +3,19 @@
 namespace ECSEngine {
 
 WindowManager::WindowManager(unsigned int width, unsigned int height, const std::string& title)
-    : mWindow(std::make_shared<sf::RenderWindow>(sf::VideoMode({width, height}), title)) {}
+    : mWindow(std::make_shared<sf::RenderWindow>(sf::VideoMode({width, height}), title)) {
+    mWindow->setFramerateLimit(60);
+
+    mWorldUnitsPerPixel = 1;
+    mWorldCenter = Point2D(static_cast<int>(width / 2), static_cast<int>(height / 2));
+}
 
 std::shared_ptr<sf::RenderWindow> WindowManager::GetWindow() const { return mWindow; }
 
-Rect WindowManager::GetWindowBounds() const { return Rect(); }
+Rect WindowManager::GetWindowBounds() const {
+    const Point2D tl = Point2D(0.f, 0.f);
+    return Rect{tl, static_cast<float>(mWindow->getSize().x), static_cast<float>(mWindow->getSize().y)};
+}
 
 void WindowManager::DebugDrawRect(const Rect& r, int red, int green, int blue, int alpha) {}
 
