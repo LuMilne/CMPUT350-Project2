@@ -44,6 +44,9 @@ int main(int argc, char* argv[]) {
 
     // Load maps
 
+    //Parse maps
+    
+
     // Place player
 
     // Setup score component
