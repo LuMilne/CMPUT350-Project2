@@ -19,7 +19,7 @@ private:
     Entity() = default;
     Entity(EntityID eid, const std::string& name) : mID(eid), mType(name) {}
     EntityID mID;       // Unique identifier for this instance
-    std::string mType;  // Undicates what entity group this instance is a part of
+    std::string mType;  // Indicates what entity group this instance is a part of
 
     template <typename... T>
     friend class EntityManager;
