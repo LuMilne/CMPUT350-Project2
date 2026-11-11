@@ -5,7 +5,7 @@
 
 namespace ECSEngine {
 
-SpriteID SpriteManager::RegisterTexture(const std::string& texturePath, const Rect& sourceRect) {
+SpriteID SpriteManager::RegisterTexture(const char id, const std::string& texturePath, const Rect& sourceRect) {
     // Load subtexture
     sf::Texture subtexture;
     bool load = subtexture.loadFromFile(
@@ -22,11 +22,11 @@ SpriteID SpriteManager::RegisterTexture(const std::string& texturePath, const Re
     
     size_t currentSize = mSprites.size();
     // Add texture to mTextures
-    mTextures.insert({nextID, std::move(subtexture)});
+    mTextures.insert({id, std::move(subtexture)});
     // Construct a sprite and add to mSprites
-    mSprites.insert({nextID, sf::Sprite(mTextures.find(nextID)->second)});
+    mSprites.insert({id, sf::Sprite(mTextures.find(id)->second)});
     assert(currentSize + 1 == mSprites.size() && currentSize + 1 == mTextures.size()); // Verify that element was added
-    return nextID++;
+    return id;
 }
 
 sf::Sprite& SpriteManager::GetSprite(SpriteID id) {
