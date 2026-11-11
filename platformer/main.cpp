@@ -19,6 +19,7 @@
 #include "SpriteComponent.h"
 #include "SpriteManager.h"
 #include "SpriteSystem.h"
+#include "MapParser.h"
 
 std::string gResourcePath = "../assets/";
 #define COMPONENTS                                                                             \
@@ -43,6 +44,18 @@ int main(int argc, char* argv[]) {
     // Load sounds
 
     // Load maps
+    ECSEngine::MapData background;
+    ECSEngine::MapData foreground;
+
+    if (!ECSEngine::ParseMap(gResourcePath + "sky.map", background)) {
+        //INSERT ERROR THROW
+        return 1;
+    }
+    if (!ECSEngine::ParseMap(gResourcePath + "world.map", foreground)) {
+        //INSERT ERROR THROW
+        return 1;
+    }
+
 
     //Parse maps
     

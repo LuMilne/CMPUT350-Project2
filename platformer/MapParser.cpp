@@ -15,24 +15,6 @@
 
 namespace ECSEngine {
 
-
-struct MapEntry {
-    std::string path;
-    Rect source;
-    Rect bounds;
-};
-
-struct MapData {
-    //For the dictonary type
-    int dicType = 0;
-    //Map for our entries
-    std::unordered_map<char, MapEntry> entries;
-    //Map Origin info
-    float otlx, otly, ow, oh, ogw, ogh;
-    //Stores map layout
-    std::vector<std::string> rows;
-};
-
 bool ParseMap(const std::string& path, MapData& map) {
     std::string line;
     std::ifstream file(path);
@@ -105,6 +87,7 @@ bool ParseMap(const std::string& path, MapData& map) {
         >> map.ow >> map.oh >> word >> map.ogw >> map.ogh;
     }
 
+    //Lines after map
     for (int i = 0; i < map.ogh; i++) {
         map.rows.push_back(line);
     }
