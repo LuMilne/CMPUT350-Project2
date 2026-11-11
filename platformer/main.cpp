@@ -56,6 +56,10 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    ECSEngine::SpriteManager spriteManager = engine.GetSpriteManager();
+    for (auto it: background.entries) {
+        spriteManager.RegisterTexture(it.second.path, it.second.source);
+    }
     // Place player
 
     // Setup score component
