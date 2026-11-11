@@ -1,4 +1,5 @@
 #include <fstream>
+#include <stdexcept>
 
 #include "CameraSystem.h"
 #include "CollisionComponent.h"
@@ -48,17 +49,17 @@ int main(int argc, char* argv[]) {
     ECSEngine::MapData foreground;
 
     if (!ECSEngine::ParseMap(gResourcePath + "sky.map", background)) {
-        //INSERT ERROR THROW
+        throw std::runtime_error("Failed to load background map.");
         return 1;
     }
     if (!ECSEngine::ParseMap(gResourcePath + "world.map", foreground)) {
-        //INSERT ERROR THROW
+        throw std::runtime_error("Failed to load foreground map.");
         return 1;
     }
 
     ECSEngine::SpriteManager spriteManager = engine.GetSpriteManager();
     for (auto it: background.entries) {
-        spriteManager.RegisterTexture(it.second.path, it.second.source);
+        spriteManager.RegisterTexture(it.first, it.second.path, it.second.source);
     }
     // Place player
 
