@@ -172,11 +172,21 @@ public:
         return std::get<ComponentStorage<T>>(mComponents);
     }
 
+    // *Taken from template
+    using tEntity = std::vector<Entity>;
+    using const_iterator = tEntity::const_iterator;
+    using iterator = tEntity::iterator;
+    const_iterator cbegin() const { return mEntities.begin(); }
+    const_iterator cend() const { return mEntities.end(); }
+    iterator begin() { return mEntities.begin(); }
+    iterator end() { return mEntities.end(); }
+    // *
+
     /**
      * @brief Retrieves an Entity object by searching for id
-     * 
+     *
      * @param entity The id of the Entity object selected
-     * 
+     *
      * @returns an iterator pointing to the Entity in mEntities
      */
     iterator GetEntity(EntityID entity) {
@@ -212,15 +222,15 @@ public:
         return it;
     }
 
-    // *Taken from template
-    using tEntity = std::vector<Entity>;
-	using const_iterator = tEntity::const_iterator;
-    using iterator = tEntity::iterator;
-	const_iterator cbegin() const { return mEntities.begin(); }
-	const_iterator cend() const { return mEntities.end(); }
-	iterator begin() { return mEntities.begin(); }
-	iterator end() { return mEntities.end(); }
-    // *
+ //    // *Taken from template
+ //    using tEntity = std::vector<Entity>;
+	// using const_iterator = tEntity::const_iterator;
+ //    using iterator = tEntity::iterator;
+	// const_iterator cbegin() const { return mEntities.begin(); }
+	// const_iterator cend() const { return mEntities.end(); }
+	// iterator begin() { return mEntities.begin(); }
+	// iterator end() { return mEntities.end(); }
+ //    // *
 
 private:
     /**
