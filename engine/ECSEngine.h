@@ -74,7 +74,7 @@ ECSEngine<Components...>::~ECSEngine() {}
 template <typename... Components>
 void ECSEngine<Components...>::Run() {
     // Update systems
-    assert(mSystemManager.Run(this));
+    mSystemManager.Run(this);
     // Draw window
     
 }
