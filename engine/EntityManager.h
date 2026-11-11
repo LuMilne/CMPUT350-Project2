@@ -49,18 +49,12 @@ public:
      * 
      * @param entity The id of the Entity object selected to be removed
      */
-    void RemoveEntity(EntityID entity) {    // WIP
+    void RemoveEntity(EntityID entity) {
         // Retrieve an iterator for entity (missing entities already checked)
         iterator it = GetEntity(entity);
 
-        // Remove all components from the entity WIP
-        for(ComponentStorage<T>* component: mComponents) {
-            if(component->mapToStorage.size() > entity) {
-                if(component->mapToStorage[entity] >= 0) {
-                    RemoveComponent<T>(entry);
-                }
-            }
-        }
+        // Remove all components from the entity
+        (StripComponent<Components>(entity), ...);
 
         // Erase entity
         const auto currentSize = mEntities.size();
@@ -185,7 +179,7 @@ public:
      * 
      * @returns an iterator pointing to the Entity in mEntities
      */
-    iterator GetEntity(Entity entity) {
+    iterator GetEntity(EntityID entity) {
         assert(entity >= 0); // Confirm valid id collection
 
         // Lambda expression to match target id to entity ids in storage vector
@@ -205,7 +199,7 @@ public:
      * 
      * @returns a const_iterator pointing to the Entity in mEntities
      */
-    const_iterator cGetEntity(Entity entity) {
+    const_iterator cGetEntity(EntityID entity) {
         assert(entity >= 0); // Confirm valid id collection
 
         // Lambda expression to match target id to entity ids in storage vector
@@ -227,10 +221,23 @@ public:
 	iterator begin() { return mEntities.begin(); }
 	iterator end() { return mEntities.end(); }
     // *
+
+private:
+    /**
+     * @brief Helper function for RemoveEntity that checks for and strips a component before removal
+     * 
+     * @param entity The id of the Entity object selected
+     */
+    template <typename T>
+    void StripComponent(EntityID entity) {
+        if(HasComponent<T>(entity)) {
+            RemoveComponent<T>(entity);
+        }
+    }
+    
     tEntity mEntities;
     EntityID nextID = 0;
     std::tuple<ComponentStorage<Components>...> mComponents;
-private:
 };
 
 }  // namespace ECSEngine
