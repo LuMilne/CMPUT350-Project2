@@ -172,6 +172,11 @@ public:
         return std::get<ComponentStorage<T>>(mComponents);
     }
 
+    template <typename T>
+    const ComponentStorage<T>& GetComponentStorage() const {
+        return std::get<ComponentStorage<T>>(mComponents);
+    }
+
     // *Taken from template
     using tEntity = std::vector<Entity>;
     using const_iterator = tEntity::const_iterator;
