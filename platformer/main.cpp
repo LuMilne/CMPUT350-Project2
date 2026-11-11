@@ -43,6 +43,11 @@ int main(int argc, char* argv[]) {
     Engine engine(1024, 768, "Test Engine");
 
     // Load sounds
+    auto& soundManager = engine.GetSoundManager();
+    for (std::string name : {"error_008", "footsteps_grass_003", "footsteps_snow_001",
+        "laserLarge_000", "sfx_gem", "sfx_jump", "sfx_jump_high"}) {
+        soundManager.RegisterSound(gResourcePath + name + ".ogg", name);
+    }
 
     // Load maps
     ECSEngine::MapData background;
@@ -58,12 +63,12 @@ int main(int argc, char* argv[]) {
     }
 
     // Register parsed texture information into sprites
-    ECSEngine::SpriteManager spriteManager = engine.GetSpriteManager();
+    ECSEngine::SpriteManager& spriteManager = engine.GetSpriteManager();
     for (auto it: background.entries) {
-        spriteManager.RegisterTexture(it.first, it.second.path, it.second.source);
+        it.second.id = spriteManager.RegisterTexture(it.first, it.second.path, it.second.source);
     }
     for (auto it: foreground.entries) {
-        spriteManager.RegisterTexture(it.first, it.second.path, it.second.source);
+        it.second.id = spriteManager.RegisterTexture(it.first, it.second.path, it.second.source);
     }
     // Place player
 

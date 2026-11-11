@@ -29,7 +29,7 @@ public:
         //  thing thats being followed by the camera
         if (mCameraID == NULL) {
             for (auto& entities : manager) {
-                if (manager.template HasComponent<CameraComponent>(entities.GetID())) {
+                if (manager.template HasComponent<CameraFollower>(entities.GetID())) {
                     mCameraID = entities.GetID();
                     break;
                 }
