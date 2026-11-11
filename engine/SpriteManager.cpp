@@ -12,8 +12,8 @@ SpriteID SpriteManager::RegisterTexture(const char id, const std::string& textur
         texturePath, 
         false, 
         sf::IntRect(
-            {sourceRect.topLeft.x, sourceRect.topLeft.y}, 
-            {sourceRect.width, sourceRect.height}
+            {static_cast<int>(sourceRect.topLeft.x), static_cast<int>(sourceRect.topLeft.y)},
+            {static_cast<int>(sourceRect.width), static_cast<int>(sourceRect.height)}
         )
     );
     if(!load) { // Verify that subtexture was loaded successfully

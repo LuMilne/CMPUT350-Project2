@@ -17,7 +17,7 @@ EntityID CreateEntity(const std::string& name){
 
     // Add to list
     mEntities.push_back();
-    assert(currentSize != mEntities.size()) // Confirm Entity was added to vector
+    assert(currentSize != mEntities.size()); // Confirm Entity was added to vector
     return newEntity.GetID();
 }
 
@@ -31,7 +31,7 @@ void RemoveEntity(EntityID entity) {
     });
 
     // Provided entity should exist within mEntities
-    if( it == end() ) { throw std::runtime_error("Attempted to delete Entity not found within manager.") }
+    if( it == end() ) { throw std::runtime_error("Attempted to delete Entity not found within manager."); }
 
     // Erase entity
     int currentSize = mEntities.size();
@@ -47,7 +47,7 @@ void AddComponent(EntityID entity, T component) {
     });
 
     // Provided entitiy should exist within mEntities
-    if( it == end() ) { throw std::runtime_error("Entity not found within manager.") }
+    if( it == end() ) { throw std::runtime_error("Entity not found within manager."); }
 }
 
 }   // namespace ECSEngine
