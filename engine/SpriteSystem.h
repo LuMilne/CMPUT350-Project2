@@ -22,6 +22,15 @@ public:
     }
 
     tSystemReturn Run(EngineView<Components...>* engine) override { 
+        const auto entMg = engine->GetEntityManager();
+        // Iterate and draw any entity with a SpriteComponent
+        for(const_iterator it = entMg->cbegin(), it != entMg->cend(), it++) {
+            if(entMg->HasComponent<SpriteComponent>(it*)) {
+                const auto sprite = entMg->GetComponent<SpriteComponent>(it*);
+                const auto location = entMg->GetComponent<LocationComponent>(it*);
+                
+            }
+        }
         return kContinue; 
     }
 };

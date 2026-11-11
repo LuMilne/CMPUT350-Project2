@@ -61,6 +61,9 @@ int main(int argc, char* argv[]) {
     for (auto it: background.entries) {
         spriteManager.RegisterTexture(it.first, it.second.path, it.second.source);
     }
+    for (auto it: foreground.entries) {
+        spriteManager.RegisterTexture(it.first, it.second.path, it.second.source);
+    }
     // Place player
 
     // Setup score component
