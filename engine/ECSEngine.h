@@ -74,7 +74,20 @@ ECSEngine<Components...>::~ECSEngine() {}
 template <typename... Components>
 void ECSEngine<Components...>::Run() {
     // Update systems
-    mSystemManager.Run(this);
+    auto window = mWindowManager.GetWindow();
+    std::cout << "ECSEngine::Run()\n";
+    while (window->isOpen()) {
+        while (const std::optional event = window->pollEvent()) {
+            if (event->is<sf::Event::Closed>()) {
+                window->close();
+            }
+        }
+        mSystemManager.Run(this);
+
+        window->clear(sf::Color::Black);
+        window->display();
+    }
+
     // Draw window
     
 }

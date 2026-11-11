@@ -56,10 +56,6 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-
-    //Parse maps
-    
-
     // Place player
 
     // Setup score component
