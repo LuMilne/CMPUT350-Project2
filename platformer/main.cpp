@@ -86,6 +86,7 @@ int main(int argc, char* argv[]) {
     for (int i = 0; i < 3; i ++) {
         std::string scoreName = "ScoreEntity" + std::to_string(i);
         score.digitID[i] = entityManager.CreateEntity(scoreName);
+        //TODO: FINISH ADDING COMPONENTS
     }
 
     auto scoreEntity = entityManager.CreateEntity("Score");

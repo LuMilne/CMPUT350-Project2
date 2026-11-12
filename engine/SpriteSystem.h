@@ -31,18 +31,18 @@ public:
         for(auto it = entMg.cbegin(); it != entMg.cend(); it++) {
             // Check for SpriteComponent and LocationComponent
             const EntityID id = it->GetID();
-            if(entMg.HasComponent<SpriteComponent>(id)) {
+            if(entMg.template HasComponent<SpriteComponent>(id)) {
                 // Extract sprite and info
-                const SpriteComponent spriteComp = entMg.GetComponent<SpriteComponent>(id);
+                const SpriteComponent spriteComp = entMg.template GetComponent<SpriteComponent>(id);
                 sf::Sprite sprite = spriteMg.GetSprite(spriteComp.textureID);    // Just a copy. Don't edit sprite info
                 // Determine if this is a world entity or a screen entity
                 if(spriteComp.worldSpace) { // World entity
-                    if(!entMg.HasComponent<LocationComponent>(id)) {
+                    if(!entMg.template HasComponent<LocationComponent>(id)) {
                         throw std::runtime_error("Worldspace entity has no LocationComponent.");
                     }
 
                     // Retrieve world location
-                    const LocationComponent location = entMg.GetComponent<LocationComponent>(id);
+                    const LocationComponent location = entMg.template GetComponent<LocationComponent>(id);
 
                     // Convert to screen space
                     // Position (world position is location component + sprite component offset)
