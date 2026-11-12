@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Register parsed texture information into sprites
-    ECSEngine::SpriteManager spriteManager = engine.GetSpriteManager();
+    ECSEngine::SpriteManager& spriteManager = engine.GetSpriteManager();
     for (auto it: background.entries) {
         spriteManager.RegisterTexture(it.first, it.second.path, it.second.source);
     }

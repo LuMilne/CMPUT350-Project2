@@ -77,18 +77,21 @@ void ECSEngine<Components...>::Run() {
     auto window = mWindowManager.GetWindow();
     std::cout << "ECSEngine::Run()\n";
     while (window->isOpen()) {
+        // Clear window for new frame
+        window->clear(sf::Color::Black);
         while (const std::optional event = window->pollEvent()) {
             if (event->is<sf::Event::Closed>()) {
                 window->close();
             }
         }
         mSystemManager.Run(this);
-
-        window->clear(sf::Color::Black);
+        // Display window
         window->display();
     }
 
     // Draw window
+    window->clear(sf::Color::Black);
+    window->display();
     
 }
 

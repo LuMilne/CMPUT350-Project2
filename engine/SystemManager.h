@@ -27,8 +27,8 @@ public:
         for (auto& system : mSystems) {
             temp++;
             std::cout << "SystemManager for loop: " << temp << "\n";
-            system->Run(scene);
-            if (system->Run(scene) == kExit)  // system wants to exit
+            auto response = system->Run(scene);
+            if (response == kExit)  // system wants to exit
             {
                 std::cout << system->GetName() << " requested exit from system manager\n";
                 return false;

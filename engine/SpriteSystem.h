@@ -2,6 +2,7 @@
 
 #include <bitset>
 #include <unordered_map>
+#include <stdexcept>
 
 #include "CameraComponent.h"
 #include "EntityManager.h"
@@ -22,13 +23,49 @@ public:
     }
 
     tSystemReturn Run(EngineView<Components...>* engine) override { 
-        const auto entMg = engine->GetEntityManager();
+        auto& entMg = engine->GetEntityManager();
+        auto& winMg = engine->GetWindowManager();
+        auto& spriteMg = engine->GetSpriteManager();
+        auto window = winMg.GetWindow();
         // Iterate and draw any entity with a SpriteComponent
-        for(const_iterator it = entMg->cbegin(), it != entMg->cend(), it++) {
-            if(entMg->HasComponent<SpriteComponent>(it*)) {
-                const auto sprite = entMg->GetComponent<SpriteComponent>(it*);
-                const auto location = entMg->GetComponent<LocationComponent>(it*);
-                
+        for(auto it = entMg.cbegin(); it != entMg.cend(); it++) {
+            // Check for SpriteComponent and LocationComponent
+            const EntityID id = it->GetID();
+            if(entMg.HasComponent<SpriteComponent>(id)) {
+                // Extract sprite and info
+                const SpriteComponent spriteComp = entMg.GetComponent<SpriteComponent>(id);
+                sf::Sprite sprite = spriteMg.GetSprite(spriteComp.textureID);    // Just a copy. Don't edit sprite info
+                // Determine if this is a world entity or a screen entity
+                if(spriteComp.worldSpace) { // World entity
+                    if(!entMg.HasComponent<LocationComponent>(id)) {
+                        throw std::runtime_error("Worldspace entity has no LocationComponent.");
+                    }
+
+                    // Retrieve world location
+                    const LocationComponent location = entMg.GetComponent<LocationComponent>(id);
+
+                    // Convert to screen space
+                    // Position (world position is location component + sprite component offset)
+                    Point2D screenPosition = winMg.WorldToWindow(Point2D(
+                        location.loc.x + spriteComp.bounds.topLeft.x,
+                        location.loc.y + spriteComp.bounds.topLeft.y
+                    ));
+
+                    sprite.setPosition({screenPosition.x, screenPosition.y});
+
+                    // Scale (from texture dimzensions to screen-space dimensions)
+                    const auto spriteSize = sprite.getTexture().getSize();
+                    const float screenWidth = winMg.WorldToWindow(spriteComp.bounds.width);
+                    const float screenHeight = winMg.WorldToWindow(spriteComp.bounds.height);
+
+                    sprite.setScale({
+                        screenWidth / float(spriteSize.x),
+                        screenHeight / float(spriteSize.y)
+                    });
+                }
+
+                // Draw sprite
+                window->draw(sprite);
             }
         }
         return kContinue; 
