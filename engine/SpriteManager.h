@@ -9,7 +9,7 @@
 
 namespace ECSEngine {
 
-using SpriteID = char;
+using SpriteID = size_t;
 
 class SpriteManager {
 public:
@@ -18,13 +18,12 @@ public:
     /**
      * @brief Creates a sprite from the provided texture and stores in mSprites
      * 
-     * @param id a unique character, taken from the texture maps
      * @param texturePath the source file for the texture
      * @param sourceRect the coordinates and dimensions of the texture in the file
      * @throws runtime_error if texture fails to load from texturePath
-     * @returns the ID of the sprite
+     * @returns the generated ID of the sprite
      */
-    [[nodiscard]] SpriteID RegisterTexture(const char id, const std::string& texturePath, const Rect& sourceRect);
+    [[nodiscard]] SpriteID RegisterTexture(const std::string& texturePath, const Rect& sourceRect);
 
     /**
      * @brief Returns a stored sprite

@@ -39,7 +39,9 @@ public:
 
         // Add to list
         mEntities.emplace_back(newEntity);
-        assert(currentSize + 1 == mEntities.size()); // Confirm Entity was added to vector
+        if(currentSize + 1 != mEntities.size()) {   // Confirm Entity was added to vector
+            throw std::runtime_error("Failed to add entity.");
+        }
 
         return newEntity.GetID();
     }
@@ -59,7 +61,9 @@ public:
         // Erase entity
         const auto currentSize = mEntities.size();
         mEntities.erase(it);
-        assert(currentSize - 1 == mEntities.size());    // Confirm Entity was deleted from vector
+        if(currentSize - 1 != mEntities.size()) {   // Confirm Entity was added to vector
+            throw std::runtime_error("Failed to remove entity.");
+        }
     }
 
     /**
@@ -70,7 +74,9 @@ public:
      */
     template <typename T>
     void AddComponent(EntityID entity, T component) {
-        assert(!HasComponent<T>(entity));  // Provided entity should not have this component assigned yet
+        if(HasComponent<T>(entity)) {  // Provided entity should not have this component assigned yet
+            throw std::runtime_error("AddComponent: Entity already has component.");
+        }
 
         // Get component storage
         auto& cStore = GetComponentStorage<T>();
@@ -97,7 +103,9 @@ public:
         }
         cStore.mapToStorage[entity] = index;
 
-        assert(HasComponent<T>(entity));    // Confirm component has been added
+        if(!HasComponent<T>(entity)) {  // Confirm component has been added
+            throw std::runtime_error("Failed to add component.");
+        }
     }
 
     /**
@@ -107,7 +115,9 @@ public:
      */
     template <typename T>
     void RemoveComponent(EntityID entity) {
-        assert(HasComponent<T>(entity));  // Provided entity should have this component assigned
+        if(!HasComponent<T>(entity)) {  // Provided entity should not have this component assigned yet
+            throw std::runtime_error("RemoveComponent: Entity does not have component.");
+        }
 
         // Get component storage
         auto& cStore = GetComponentStorage<T>();
@@ -121,7 +131,9 @@ public:
         cStore.mapToStorage[entity] = kNullComponent;
         cStore.mFreeList.push_back(index);
 
-        assert(!HasComponent<T>(entity));    // Confirm component has been removed
+        if(HasComponent<T>(entity)) {  // Confirm component has been added
+            throw std::runtime_error("Failed to remove component.");
+        }
     }
 
     /**
@@ -151,7 +163,9 @@ public:
      */
     template <typename T>
     T& GetComponent(EntityID entity) {
-        assert(HasComponent<T>(entity));  // Provided entity should have this component assigned
+        if(!HasComponent<T>(entity)) {  // Provided entity should atready have this component assigned
+            throw std::runtime_error("GetComponent: Entity does not have component.");
+        }
 
         // Get component storage
         auto& cStore = GetComponentStorage<T>();

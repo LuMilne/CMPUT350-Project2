@@ -43,6 +43,8 @@ struct Circle {
 };
 
 struct Rect {
+    Rect() {}
+    Rect(Point2D p, float w, float h): topLeft(p), width(w), height(h) {}
     Point2D topLeft;
     float width, height;
 };

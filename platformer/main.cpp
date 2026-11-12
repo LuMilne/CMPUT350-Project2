@@ -65,10 +65,10 @@ int main(int argc, char* argv[]) {
     // Register parsed texture information into sprites
     ECSEngine::SpriteManager& spriteManager = engine.GetSpriteManager();
     for (auto it: background.entries) {
-        it.second.id = spriteManager.RegisterTexture(it.first, it.second.path, it.second.source);
+        it.second.id = spriteManager.RegisterTexture(it.second.path, it.second.source);
     }
     for (auto it: foreground.entries) {
-        it.second.id = spriteManager.RegisterTexture(it.first, it.second.path, it.second.source);
+        it.second.id = spriteManager.RegisterTexture(it.second.path, it.second.source);
     }
     // Place player
 
@@ -79,10 +79,11 @@ int main(int argc, char* argv[]) {
 
     for (int i = 0; i < 10; i++) {
         //TODO: FIX CALL. GET RID OF ID
-        score.digitTextureID[i] = spriteManager.RegisterTexture(i, gResourcePath + "spritesheet-tiles-default.png",
-            ECSEngine::Rect({896, 896 - 64 * i}, 64, 64));
+        score.digitTextureID[i] = spriteManager.RegisterTexture(
+            gResourcePath + "spritesheet-tiles-default.png",
+            ECSEngine::Rect(ECSEngine::Point2D(896, 896 - 64 * i), 64.0f, 64.0f)
+        );
     }
-
     for (int i = 0; i < 3; i ++) {
         std::string scoreName = "ScoreEntity" + std::to_string(i);
         score.digitID[i] = entityManager.CreateEntity(scoreName);
