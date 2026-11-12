@@ -9,8 +9,6 @@
 // Created by csobe on 2026-11-09.
 //
 
-#include "MapParser.h"
-
 #include <filesystem>
 #include <fstream>
 #include <sstream>
@@ -18,6 +16,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "Entity.h"
+#include "MapParser.h"
 #include "MathUtil.h"
 
 namespace ECSEngine {
@@ -27,6 +27,7 @@ struct MapEntry {
     std::string path;
     Rect source;
     Rect bounds;
+    EntityID id;
 };
 
 struct MapData {

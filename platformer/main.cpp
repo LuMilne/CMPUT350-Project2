@@ -43,6 +43,11 @@ int main(int argc, char* argv[]) {
     Engine engine(1024, 768, "Test Engine");
 
     // Load sounds
+    auto& soundManager = engine.GetSoundManager();
+    for (std::string name : {"error_008", "footstep_grass_003", "footstep_snow_001",
+        "laserLarge_000", "sfx_gem", "sfx_jump", "sfx_jump-high"}) {
+        soundManager.RegisterSound(gResourcePath + name + ".ogg", name);
+    }
 
     // Load maps
     ECSEngine::MapData background;
@@ -60,14 +65,31 @@ int main(int argc, char* argv[]) {
     // Register parsed texture information into sprites
     ECSEngine::SpriteManager& spriteManager = engine.GetSpriteManager();
     for (auto it: background.entries) {
-        spriteManager.RegisterTexture(it.first, it.second.path, it.second.source);
+        it.second.id = spriteManager.RegisterTexture(it.first, it.second.path, it.second.source);
     }
     for (auto it: foreground.entries) {
-        spriteManager.RegisterTexture(it.first, it.second.path, it.second.source);
+        it.second.id = spriteManager.RegisterTexture(it.first, it.second.path, it.second.source);
     }
     // Place player
 
     // Setup score component
+    ECSEngine::EntityManager<COMPONENTS>& entityManager = engine.GetEntityManager();
+    ECSEngine::ScoreComponent score{};
+    score.score = 0;
+
+    for (int i = 0; i < 10; i++) {
+        //TODO: FIX CALL. GET RID OF ID
+        score.digitTextureID[i] = spriteManager.RegisterTexture(i, gResourcePath + "spritesheet-tiles-default.png",
+            ECSEngine::Rect({896, 896 - 64 * i}, 64, 64));
+    }
+
+    for (int i = 0; i < 3; i ++) {
+        std::string scoreName = "ScoreEntity" + std::to_string(i);
+        score.digitID[i] = entityManager.CreateEntity(scoreName);
+    }
+
+    auto scoreEntity = entityManager.CreateEntity("Score");
+    entityManager.AddComponent<ECSEngine::ScoreComponent>(scoreEntity, score);
 
     // Setup Camera
 
