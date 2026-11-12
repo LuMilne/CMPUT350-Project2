@@ -44,8 +44,8 @@ int main(int argc, char* argv[]) {
 
     // Load sounds
     auto& soundManager = engine.GetSoundManager();
-    for (std::string name : {"error_008", "footsteps_grass_003", "footsteps_snow_001",
-        "laserLarge_000", "sfx_gem", "sfx_jump", "sfx_jump_high"}) {
+    for (std::string name : {"error_008", "footstep_grass_003", "footstep_snow_001",
+        "laserLarge_000", "sfx_gem", "sfx_jump", "sfx_jump-high"}) {
         soundManager.RegisterSound(gResourcePath + name + ".ogg", name);
     }
 
