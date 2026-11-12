@@ -73,6 +73,23 @@ int main(int argc, char* argv[]) {
     // Place player
 
     // Setup score component
+    ECSEngine::EntityManager<COMPONENTS>& entityManager = engine.GetEntityManager();
+    ECSEngine::ScoreComponent score{};
+    score.score = 0;
+
+    for (int i = 0; i < 10; i++) {
+        //TODO: FIX CALL. GET RID OF ID
+        score.digitTextureID[i] = spriteManager.RegisterTexture(i, gResourcePath + "spritesheet-tiles-default.png",
+            ECSEngine::Rect({896, 896 - 64 * i}, 64, 64));
+    }
+
+    for (int i = 0; i < 3; i ++) {
+        std::string scoreName = "ScoreEntity" + std::to_string(i);
+        score.digitID[i] = entityManager.CreateEntity(scoreName);
+    }
+
+    auto scoreEntity = entityManager.CreateEntity("Score");
+    entityManager.AddComponent<ECSEngine::ScoreComponent>(scoreEntity, score);
 
     // Setup Camera
 

@@ -22,7 +22,7 @@ public:
     }
 
     tSystemReturn Run(EngineView<Components...>* engine) override {
-        auto manager = engine->GetEntityManager();
+        auto& manager = engine->GetEntityManager();
         auto& window = engine->GetWindowManager();
 
         //Checks if we have a camera id yet or not. Saves checking everytime as we only have one
