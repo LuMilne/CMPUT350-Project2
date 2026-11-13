@@ -63,7 +63,7 @@ public:
             else if(playerInput.keydown[Key::Right]) {  // Move right
                 bool aerial = (collComp.onGround == 0);
                 if(collComp.onRightWall != 0) playerStop(moveComp.velocity);
-                playerMove(moveComp.velocity, true, aerial);
+                else playerMove(moveComp.velocity, true, aerial);
             }
             else if(playerInput.lastKeydown[Key::Left] && playerInput.lastKeydown[Key::Right]) {   // Movement keyRelease event
                 playerStop(moveComp.velocity);
