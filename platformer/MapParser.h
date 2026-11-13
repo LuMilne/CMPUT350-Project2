@@ -41,7 +41,7 @@ struct MapData {
     std::vector<std::string> rows;
 };
 
-bool ParseMap(const std::string& path, MapData& map);
+bool ParseMap(const std::string& dir, const std::string source, MapData& map);
 }
 
 #endif  // PLATFORMER_MAPPARSER_H
