@@ -1,4 +1,6 @@
-add_executable(${PROJECT_NAME} main.cpp)
+add_executable(${PROJECT_NAME} main.cpp
+        MapParser.cpp
+        MapParser.h)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/engine)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)

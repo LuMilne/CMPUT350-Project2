@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <cassert>
 
 #include "CameraComponent.h"
 #include "CollisionComponent.h"
@@ -71,7 +72,28 @@ template <typename... Components>
 ECSEngine<Components...>::~ECSEngine() {}
 
 template <typename... Components>
-void ECSEngine<Components...>::Run() {}
+void ECSEngine<Components...>::Run() {
+    // Update systems
+    auto window = mWindowManager.GetWindow();
+    std::cout << "ECSEngine::Run()\n";
+    while (window->isOpen()) {
+        // Clear window for new frame
+        window->clear(sf::Color::Black);
+        while (const std::optional event = window->pollEvent()) {
+            if (event->is<sf::Event::Closed>()) {
+                window->close();
+            }
+        }
+        mSystemManager.Run(this);
+        // Display window
+        window->display();
+    }
+
+    // Draw window
+    window->clear(sf::Color::Black);
+    window->display();
+    
+}
 
 template <typename... Components>
 bool ECSEngine<Components...>::ProcessEvents() {

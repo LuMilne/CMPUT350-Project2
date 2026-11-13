@@ -1,15 +1,40 @@
+#include <stdexcept>
+#include <utility>
+
 #include "SpriteManager.h"
 
 namespace ECSEngine {
 
 SpriteID SpriteManager::RegisterTexture(const std::string& texturePath, const Rect& sourceRect) {
-    return 0;
+    // Load subtexture
+    sf::Texture subtexture;
+    bool load = subtexture.loadFromFile(
+        texturePath, 
+        false, 
+        sf::IntRect(
+            {static_cast<int>(sourceRect.topLeft.x), static_cast<int>(sourceRect.topLeft.y)},
+            {static_cast<int>(sourceRect.width), static_cast<int>(sourceRect.height)}
+        )
+    );
+    if(!load) { // Verify that subtexture was loaded successfully
+        throw std::runtime_error("Failed to load " + texturePath);
+    }
+    
+    size_t currentSize = mSprites.size();
+    // Add texture to mTextures
+    mTextures.insert({nextID, std::move(subtexture)});
+    // Construct a sprite and add to mSprites
+    mSprites.insert({nextID, sf::Sprite(mTextures.find(nextID)->second)});
+    assert(currentSize + 1 == mSprites.size() && currentSize + 1 == mTextures.size()); // Verify that element was added
+    return nextID++;
 }
 
 sf::Sprite& SpriteManager::GetSprite(SpriteID id) {
-    static sf::Texture dummyTexture;
-    static sf::Sprite dummy(dummyTexture);
-    return dummy;
+    const auto it = mSprites.find(id);
+    if(it == mSprites.end()) { // Verify that mSprites has a sprite at 'id'
+        throw std::runtime_error("Sprite not found");
+    }
+    return it->second;
 }
 
 }  // namespace ECSEngine

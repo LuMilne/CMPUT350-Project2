@@ -1,3 +1,10 @@
 #include <iostream>
+#include <stdexcept>
 
-#include "Entity.h"
+#include "EntityManager.h"
+
+
+namespace ECSEngine {
+using namespace ECSEngine;
+
+}   // namespace ECSEngine

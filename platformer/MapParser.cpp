@@ -1,0 +1,103 @@
+//
+// Created by csobe on 2026-11-09.
+//
+
+#include "MapParser.h"
+
+#include <filesystem>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+#include "MathUtil.h"
+
+namespace ECSEngine {
+
+bool ParseMap(const std::string& dir, const std::string source, MapData& map) {
+    std::string path = dir + source;
+    std::string line;
+    std::ifstream file(path);
+    auto next = [&]() {
+        bool lineExists = static_cast<bool>(std::getline(file, line));
+        if (lineExists && !line.empty() && line.back() == '\n') {
+            line.pop_back();
+        }
+        return lineExists;
+    };
+    if (!file) {
+        return false;
+    }
+
+    /*
+    Order:
+        First line separately
+        Lines until map
+        Map line
+        lines after map
+    */
+
+    //First Line:
+    if (!next()) {
+        return false;
+    }
+
+    {
+        std::istringstream stream(line);
+        std::string word;
+        stream >> word >> map.dicType;
+        if (!stream || word != "dictionary") {
+            return false;
+        }
+    }
+
+    //Lines until "map"
+
+    std::string symbol;
+    while (next()) {
+        std::istringstream stream(line);
+
+        if (!(stream >> symbol)) {
+            continue;
+        }
+
+        if (symbol == "map") {
+            break;
+        }
+
+        MapEntry entry;
+        float stlx, stly, sw, sh; //Stores our sprite location and bounding boxes
+        float btlx=0.0f, btly=0.0f, bw=0.0f, bh=0.0f;
+
+        stream >> entry.path >> stlx >> stly >> sw >> sh;
+        entry.path = dir + entry.path;
+
+        if (map.dicType == 2) {
+            stream >> btlx >> btly >> bw >> bh;
+        }
+
+        entry.source = Rect({stlx, stly}, sw, sh);
+        entry.bounds = Rect({btlx, btly}, bw, bh);
+        map.entries[symbol[0]] = entry;
+    }
+
+    //The line that starts with map now
+    {
+        std::istringstream stream(line);
+        std::string word;
+        stream >> word >> word >> map.otlx >> map.otly >> word
+        >> map.ow >> map.oh >> word >> map.ogw >> map.ogh;
+    }
+
+    //Lines after map
+    for (int i = 0; i < map.ogh; i++) {
+        if (!next()) {
+            return false;
+        }
+        map.rows.push_back(line);
+    }
+    return true;
+
+}
+}
