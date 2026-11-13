@@ -12,8 +12,27 @@ public:
 
     tSystemReturn Run(EngineView<Components...>* engine) override {
 
+        auto& manager = engine->GetEntityManager();
+        auto& window = engine->GetWindowManager();
+
+        for (auto& entities : manager) {
+            if (manager.template HasComponent<MovementComponent>(entities.GetID()) && manager.template HasComponent<LocationComponent>(entities.GetID())) {
+                mEntityID = entities.GetID();
+                break;
+            }
+        }
+
+        auto& movement = manager.template GetComponent<MovementComponent>(mEntityID);
+        auto& location = manager.template GetComponent<LocationComponent>(mEntityID);
+
+        location.loc.x += movement.velocity.x;
+        location.loc.y += movement.velocity.y;
+
         return kContinue;
     }
+
+private:
+    EntityID mEntityID;
 };
 
 }  // namespace ECSEngine
