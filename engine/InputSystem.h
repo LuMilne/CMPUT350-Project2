@@ -72,7 +72,7 @@ public:
             }
             else if(~playerInput.keydown[Key::Z] & playerInput.lastKeydown[Key::Z]) {
                 // std::cout << "Jump released, ";
-                playerFall();
+                playerFall(moveComp.velocity);
             }
             // std::cout << '\n';
         }
@@ -89,8 +89,10 @@ private:
         vel.y += -kJumpVelocity;
         vel.y = std::clamp(vel.y, -kJumpVelocity, kJumpVelocity);
     }
-    void playerFall() {
-
+    void playerFall(Point2D& vel) {
+        if (vel.y < 0) {
+            vel.y = 0;
+        }
     }
     float groundAccel = 4;
     float airAccel = 3;
