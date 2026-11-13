@@ -22,7 +22,7 @@
 #include "SpriteSystem.h"
 #include "MapParser.h"
 
-std::string gResourcePath = "../assets/";
+std::string gResourcePath = "./assets/";
 #define COMPONENTS                                                                             \
     ECSEngine::LocationComponent, ECSEngine::MovementComponent, ECSEngine::CollisionComponent, \
         ECSEngine::SpriteComponent, ECSEngine::SpawnComponent, ECSEngine::CameraComponent,     \
@@ -54,12 +54,17 @@ int main(int argc, char* argv[]) {
     ECSEngine::MapData background;
     ECSEngine::MapData foreground;
 
-    if (!ECSEngine::ParseMap(gResourcePath + "sky.map", background)) {
-        throw std::runtime_error("Failed to load background map.");
-        return 1;
+    try {
+        if (!ECSEngine::ParseMap(gResourcePath + "sky.map", background)) {
+            std::cout << "gResourcePath: " << gResourcePath << '\n';
+            throw std::runtime_error("Failed to load background map at path: " + gResourcePath + "sky.map");
+        }
+        if (!ECSEngine::ParseMap(gResourcePath + "world.map", foreground)) {
+            throw std::runtime_error("Failed to load foreground map at path" + gResourcePath + "world.map");
+        }
     }
-    if (!ECSEngine::ParseMap(gResourcePath + "world.map", foreground)) {
-        throw std::runtime_error("Failed to load foreground map.");
+    catch(const std::runtime_error e) {
+        std::cerr << e.what();
         return 1;
     }
 
