@@ -29,9 +29,9 @@ public:
 	    if (collision.onGround == 1) {
 	        gravity.acceleration.y = 0;
 	    } else if (collision.onLeftWall == 1 || collision.onRightWall == 1) {
-	        gravity.acceleration.y = 3;
+	        gravity.acceleration.y = 1;
 	    } else {
-	        gravity.acceleration.y = 9.81;
+	        gravity.acceleration.y = 2;
 	    }
 
 	    movement.velocity.y += gravity.acceleration.y;
