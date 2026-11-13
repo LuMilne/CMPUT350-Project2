@@ -22,11 +22,11 @@ template <typename... Components>
 class SystemManager {
 public:
     bool Run(EngineView<Components...>* scene) {
-        std::cout << "SystemManager::Run()\n";
+        //std::cout << "SystemManager::Run()\n";
         int temp = 0;
         for (auto& system : mSystems) {
             temp++;
-            std::cout << "SystemManager for loop: " << temp << "\n";
+            //std::cout << "SystemManager for loop: " << temp << "\n";
             auto response = system->Run(scene);
             if (response == kExit)  // system wants to exit
             {

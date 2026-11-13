@@ -62,6 +62,11 @@ public:
                         screenWidth / float(spriteSize.x),
                         screenHeight / float(spriteSize.y)
                     });
+                } else {
+                    const LocationComponent location = entMg.template GetComponent<LocationComponent>(id);
+                    sprite.setPosition({location.loc.x + spriteComp.bounds.topLeft.x, location.loc.y + spriteComp.bounds.topLeft.y});
+                    auto textureSize = sprite.getTextureRect().size;
+                    sprite.setScale({spriteComp.bounds.width / textureSize.x, spriteComp.bounds.height / textureSize.y});
                 }
 
                 // Draw sprite

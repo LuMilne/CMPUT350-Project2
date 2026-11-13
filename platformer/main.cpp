@@ -72,22 +72,26 @@ int main(int argc, char* argv[]) {
     }
     // Place player
 
+    //
+
     // Setup score component
     ECSEngine::EntityManager<COMPONENTS>& entityManager = engine.GetEntityManager();
     ECSEngine::ScoreComponent score{};
-    score.score = 0;
+    score.score = 123;
 
     for (int i = 0; i < 10; i++) {
-        //TODO: FIX CALL. GET RID OF ID
         score.digitTextureID[i] = spriteManager.RegisterTexture(
             gResourcePath + "spritesheet-tiles-default.png",
-            ECSEngine::Rect(ECSEngine::Point2D(896, 896 - 64 * i), 64.0f, 64.0f)
+            ECSEngine::Rect(ECSEngine::Point2D(832, 832 - 64 * i), 64.0f, 64.0f)
         );
     }
     for (int i = 0; i < 3; i ++) {
         std::string scoreName = "ScoreEntity" + std::to_string(i);
         score.digitID[i] = entityManager.CreateEntity(scoreName);
         //TODO: FINISH ADDING COMPONENTS
+        entityManager.AddComponent<ECSEngine::SpriteComponent>(score.digitID[i], ECSEngine::SpriteComponent(score.digitTextureID[0], ECSEngine::Rect({0, 0}, 64, 64), false));
+        //Get sprite set location
+        entityManager.AddComponent<ECSEngine::LocationComponent>(score.digitID[i], ECSEngine::LocationComponent(ECSEngine::Point2D({0 + 40 * i, 0})));
     }
 
     auto scoreEntity = entityManager.CreateEntity("Score");
