@@ -15,7 +15,8 @@
 
 namespace ECSEngine {
 
-bool ParseMap(const std::string& path, MapData& map) {
+bool ParseMap(const std::string& dir, const std::string source, MapData& map) {
+    std::string path = dir + source;
     std::string line;
     std::ifstream file(path);
     auto next = [&]() {
@@ -70,7 +71,7 @@ bool ParseMap(const std::string& path, MapData& map) {
         float btlx=0.0f, btly=0.0f, bw=0.0f, bh=0.0f;
 
         stream >> entry.path >> stlx >> stly >> sw >> sh;
-        entry.path = "./assets/" + entry.path;
+        entry.path = dir + entry.path;
 
         if (map.dicType == 2) {
             stream >> btlx >> btly >> bw >> bh;

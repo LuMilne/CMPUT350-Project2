@@ -1,5 +1,6 @@
 #include <fstream>
 #include <stdexcept>
+#include <filesystem>
 
 #include "CameraSystem.h"
 #include "CollisionComponent.h"
@@ -22,7 +23,44 @@
 #include "SpriteSystem.h"
 #include "MapParser.h"
 
-std::string gResourcePath = "./assets/";
+// std::string gResourcePath = "../assets/";
+namespace fs = std::filesystem;
+
+/**
+ * @brief Searches for 'assets' directory, starting from working directory and moving up until project directory is searched
+ * 
+ * @throws runtime_error if no 'assets' directory is found from .exe directory to project directory.
+ * @returns path to 'assets' directory
+ */
+std::string getAssetPath() {
+    try {
+        // Get current working directory
+        fs::path currentDir = fs::current_path();
+        // Search for asset directory
+        while(!currentDir.empty()) {
+            // Attempt to get ./assets from current directory
+            fs::path checkDir = currentDir / "assets";
+            if(fs::exists(checkDir)) {  // return path if found
+                return (checkDir / "").string();
+            }
+
+            // If assets directory is not found
+            // Throw error if at project root directory
+            if(currentDir.filename().string() == "CMPUT350-Project2") {
+                break;
+            }
+            // Otherwise move up one directory and repeat
+            currentDir = currentDir.parent_path();
+        }
+        throw std::runtime_error("Assets directory not found");
+    }
+    catch(std::runtime_error e) {
+        std::cerr << e.what();
+    }
+}
+
+std::string gResourcePath = getAssetPath();
+
 #define COMPONENTS                                                                             \
     ECSEngine::LocationComponent, ECSEngine::MovementComponent, ECSEngine::CollisionComponent, \
         ECSEngine::SpriteComponent, ECSEngine::SpawnComponent, ECSEngine::CameraComponent,     \
@@ -59,11 +97,11 @@ int main(int argc, char* argv[]) {
     ECSEngine::MapData foreground;
 
     try {
-        if (!ECSEngine::ParseMap(gResourcePath + "sky.map", background)) {
+        if (!ECSEngine::ParseMap(gResourcePath, "sky.map", background)) {
             std::cout << "gResourcePath: " << gResourcePath << '\n';
             throw std::runtime_error("Failed to load background map at path: " + gResourcePath + "sky.map");
         }
-        if (!ECSEngine::ParseMap(gResourcePath + "world.map", foreground)) {
+        if (!ECSEngine::ParseMap(gResourcePath, "world.map", foreground)) {
             throw std::runtime_error("Failed to load foreground map at path" + gResourcePath + "world.map");
         }
     }
