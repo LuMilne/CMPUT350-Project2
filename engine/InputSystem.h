@@ -48,8 +48,9 @@ public:
         }
         // Process key events (keys pressed or new key released)
         if(playerInput.keydown.any() || (~playerInput.keydown & playerInput.lastKeydown).any()) {
-            auto& moveComp = entMg.GetComponent<MovementComponent>(player->GetID());
-            auto& gravComp = entMg.GetComponent<GravityComponent>(player->GetID());
+            auto& collComp = entMg.template GetComponent<CollisionComponent>(player->GetID());
+            auto& moveComp = entMg.template GetComponent<MovementComponent>(player->GetID());
+            auto& gravComp = entMg.template GetComponent<GravityComponent>(player->GetID());
             // Left/right keypress
             if(playerInput.keydown[Key::Left] && playerInput.keydown[Key::Right]) {    // Simultaneous left/right commands cancel out
                 playerStop(moveComp.velocity);
@@ -70,11 +71,11 @@ public:
             // Jump keypress
             if(playerInput.keydown[Key::Z] & ~playerInput.lastKeydown[Key::Z]) {   // New keypress
                 // std::cout << "Jump pressed, ";
-                playerJump();
+                playerJump(moveComp.velocity);
             }
             else if(~playerInput.keydown[Key::Z] & playerInput.lastKeydown[Key::Z]) {
                 // std::cout << "Jump released, ";
-                playerFall();
+                playerFall(moveComp.velocity);
             }
             // std::cout << '\n';
         }
@@ -99,6 +100,8 @@ private:
             vel.y = 0;
         }
     }
+    float groundAccel = 4;
+    float airAccel = 3;
 };
 
 }  // namespace ECSEngine
