@@ -42,6 +42,7 @@ int main(int argc, char* argv[]) {
     // Engine test code
     Engine engine(1024, 768, "Test Engine");
 
+    ECSEngine::EntityManager<COMPONENTS>& entityManager = engine.GetEntityManager();
     // Load sounds
     auto& soundManager = engine.GetSoundManager();
     for (std::string name : {"error_008", "footstep_grass_003", "footstep_snow_001",
@@ -64,20 +65,42 @@ int main(int argc, char* argv[]) {
 
     // Register parsed texture information into sprites
     ECSEngine::SpriteManager& spriteManager = engine.GetSpriteManager();
-    for (auto it: background.entries) {
+    for (auto& it: background.entries) {
         it.second.id = spriteManager.RegisterTexture(it.second.path, it.second.source);
     }
-    for (auto it: foreground.entries) {
+    for (auto& it: foreground.entries) {
         it.second.id = spriteManager.RegisterTexture(it.second.path, it.second.source);
+    }
+    int rowsY = 0;
+    for (auto it: background.rows) {
+        int rowsX = 0;
+        for (char c : it) {
+
+            std::string name = "tile" + std::to_string(rowsX) + "x" + std::to_string(rowsY);
+            auto tile = entityManager.CreateEntity(name);
+            entityManager.AddComponent<ECSEngine::LocationComponent>(tile, ECSEngine::LocationComponent({background.otlx + rowsX * background.ow, background.otly + rowsY * background.oh}));
+
+            ECSEngine::EntityID texID;
+            for (auto &e : background.entries) {
+                if (c == e.first) {
+                    texID = e.second.id;
+                }
+            }
+
+            entityManager.AddComponent<ECSEngine::SpriteComponent>(tile, ECSEngine::SpriteComponent(texID, ECSEngine::Rect({0,0}, background.ow, background.oh), true));
+
+
+            rowsX++;
+        }
+        rowsY++;
     }
     // Place player
 
     //
 
     // Setup score component
-    ECSEngine::EntityManager<COMPONENTS>& entityManager = engine.GetEntityManager();
     ECSEngine::ScoreComponent score{};
-    score.score = 123;
+    score.score = 0;
 
     for (int i = 0; i < 10; i++) {
         score.digitTextureID[i] = spriteManager.RegisterTexture(

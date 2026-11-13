@@ -90,6 +90,9 @@ bool ParseMap(const std::string& path, MapData& map) {
 
     //Lines after map
     for (int i = 0; i < map.ogh; i++) {
+        if (!next()) {
+            return false;
+        }
         map.rows.push_back(line);
     }
     return true;

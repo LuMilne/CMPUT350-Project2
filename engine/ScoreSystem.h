@@ -22,21 +22,24 @@ public:
                 break;
             }
         }
-        score = manager.template GetComponent<ScoreComponent>(mScoreID).score;
-        hundreds = score / 100;
-        tens = (score / 10) % 10;
-        ones = score % 10;
+        auto& scoreComponent = manager.template GetComponent<ScoreComponent>(mScoreID);
+        hundreds = scoreComponent.score / 100;
+        tens = (scoreComponent.score / 10) % 10;
+        ones = scoreComponent.score % 10;
+        int scoreDigits[3] = {hundreds, tens, ones};
 
-        manager.template GetComponent<ScoreComponent>(mScoreID).digitID[0] = manager.template GetComponent<ScoreComponent>(mScoreID).digitTextureID[hundreds];
-        manager.template GetComponent<ScoreComponent>(mScoreID).digitID[1] = manager.template GetComponent<ScoreComponent>(mScoreID).digitTextureID[tens];
-        manager.template GetComponent<ScoreComponent>(mScoreID).digitID[2] = manager.template GetComponent<ScoreComponent>(mScoreID).digitTextureID[ones];
+        //Assigns the texture to the right spot in score to update visuals
+        for (int i = 0; i < 3; i++) {
+            auto& sprite = manager.template GetComponent<SpriteComponent>(scoreComponent.digitID[i]);
+            sprite.textureID = scoreComponent.digitTextureID[scoreDigits[i]];
+        }
+
 
         return kContinue;
     }
 
 private:
     EntityID mScoreID = 0;
-    int score = 0;
     int hundreds = 0;
     int tens = 0;
     int ones = 0;
