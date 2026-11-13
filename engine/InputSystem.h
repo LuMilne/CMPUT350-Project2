@@ -25,7 +25,7 @@ public:
         auto window = winMg.GetWindow();
         // Get input component
         auto& entMg = engine->GetEntityManager();
-        auto& inputStorage = entMg.GetComponentStorage<InputComponent>();
+        auto& inputStorage = entMg.template GetComponentStorage<InputComponent>();
         InputComponent& playerInput = inputStorage.mStorage[0]; // Player should be first and only entity with InputComponent
         // Get player entity
         auto player = entMg.GetEntity(inputStorage.mapToEntity[0]);
@@ -46,8 +46,8 @@ public:
         }
         // Process key events (keys pressed or new key released)
         if(playerInput.keydown.any() || (~playerInput.keydown & playerInput.lastKeydown).any()) {
-            auto& moveComp = entMg.GetComponent<MovementComponent>(player->GetID());
-            auto& gravComp = entMg.GetComponent<GravityComponent>(player->GetID());
+            auto& moveComp = entMg.template GetComponent<MovementComponent>(player->GetID());
+            auto& gravComp = entMg.template GetComponent<GravityComponent>(player->GetID());
             // Left/right keypress
             if(playerInput.keydown[Key::Left] && playerInput.keydown[Key::Right]) {    // Simultaneous left/right commands cancel out
                 // std::cout << "L+R pressed, ";
@@ -68,7 +68,7 @@ public:
             // Jump keypress
             if(playerInput.keydown[Key::Z] & ~playerInput.lastKeydown[Key::Z]) {   // New keypress
                 // std::cout << "Jump pressed, ";
-                playerJump();
+                playerJump(moveComp.velocity);
             }
             else if(~playerInput.keydown[Key::Z] & playerInput.lastKeydown[Key::Z]) {
                 // std::cout << "Jump released, ";
@@ -85,8 +85,9 @@ private:
     void playerStop() {
         
     }
-    void playerJump() {   // TODO: implement variable jump height
-
+    void playerJump(Point2D& vel) {// TODO: implement variable jump height
+        vel.y += -kJumpVelocity;
+        vel.y = std::clamp(vel.y, -kJumpVelocity, kJumpVelocity);
     }
     void playerFall() {
 
