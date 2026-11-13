@@ -71,28 +71,60 @@ int main(int argc, char* argv[]) {
     for (auto& it: foreground.entries) {
         it.second.id = spriteManager.RegisterTexture(it.second.path, it.second.source);
     }
-    int rowsY = 0;
-    for (auto it: background.rows) {
-        int rowsX = 0;
-        for (char c : it) {
 
-            std::string name = "tile" + std::to_string(rowsX) + "x" + std::to_string(rowsY);
-            auto tile = entityManager.CreateEntity(name);
-            entityManager.AddComponent<ECSEngine::LocationComponent>(tile, ECSEngine::LocationComponent({background.otlx + rowsX * background.ow, background.otly + rowsY * background.oh}));
+    //Makes the entites for the background and adds the components
+    {
+        int rowsY = 0;
+        for (auto it: background.rows) {
+            int rowsX = 0;
+            for (char c : it) {
 
-            ECSEngine::EntityID texID;
-            for (auto &e : background.entries) {
-                if (c == e.first) {
-                    texID = e.second.id;
+                std::string name = "tile" + std::to_string(rowsX) + "x" + std::to_string(rowsY);
+                auto tile = entityManager.CreateEntity(name);
+                entityManager.AddComponent<ECSEngine::LocationComponent>(tile, ECSEngine::LocationComponent({background.otlx + rowsX * background.ow, background.otly + rowsY * background.oh}));
+
+                ECSEngine::EntityID texID;
+                for (auto &e : background.entries) {
+                    if (c == e.first) {
+                        texID = e.second.id;
+                    }
                 }
+
+                entityManager.AddComponent<ECSEngine::SpriteComponent>(tile, ECSEngine::SpriteComponent(texID, ECSEngine::Rect({0,0}, background.ow, background.oh), true));
+
+                rowsX++;
             }
-
-            entityManager.AddComponent<ECSEngine::SpriteComponent>(tile, ECSEngine::SpriteComponent(texID, ECSEngine::Rect({0,0}, background.ow, background.oh), true));
-
-
-            rowsX++;
+            rowsY++;
         }
-        rowsY++;
+    }
+
+    //Foreground creation
+    {
+        int rowsY = 0;
+        for (auto it: foreground.rows) {
+            int rowsX = 0;
+            for (char c : it) {
+                if (c == '.') {
+                    rowsX++;
+                    continue;
+                }
+                std::string name = "tile" + std::to_string(rowsX) + "x" + std::to_string(rowsY);
+                auto tile = entityManager.CreateEntity(name);
+                entityManager.AddComponent<ECSEngine::LocationComponent>(tile, ECSEngine::LocationComponent({foreground.otlx + rowsX * foreground.ow, foreground.otly + rowsY * foreground.oh}));
+
+                ECSEngine::EntityID texID;
+                for (auto &e : foreground.entries) {
+                    if (c == e.first) {
+                        texID = e.second.id;
+                    }
+                }
+
+                entityManager.AddComponent<ECSEngine::SpriteComponent>(tile, ECSEngine::SpriteComponent(texID, ECSEngine::Rect({0,0}, foreground.ow, foreground.oh), true));
+
+                rowsX++;
+            }
+            rowsY++;
+        }
     }
     // Place player
 
