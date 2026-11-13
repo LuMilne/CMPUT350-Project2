@@ -46,6 +46,8 @@ public:
         }
         // Process key events (keys pressed or new key released)
         if(playerInput.keydown.any() || (~playerInput.keydown & playerInput.lastKeydown).any()) {
+            auto& moveComp = entMg.GetComponent<MovementComponent>(player->GetID());
+            auto& gravComp = entMg.GetComponent<GravityComponent>(player->GetID());
             // Left/right keypress
             if(playerInput.keydown[Key::Left] && playerInput.keydown[Key::Right]) {    // Simultaneous left/right commands cancel out
                 // std::cout << "L+R pressed, ";
