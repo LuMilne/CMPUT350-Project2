@@ -32,6 +32,10 @@ using Engine = ECSEngine::ECSEngine<COMPONENTS>;
 
 void LoadMap(Engine& engine, const std::string& path, const std::string& file) {}
 
+void makePlayer(Engine& engine, ECSEngine::EntityManager<COMPONENTS>& entityManager, ECSEngine::SpriteManager& spriteManager) {
+
+}
+
 int main(int argc, char* argv[]) {
     if (argc >= 3 && argv[1] == std::string("-path")) {
         gResourcePath = argv[2];
@@ -118,13 +122,21 @@ int main(int argc, char* argv[]) {
                 entityManager.AddComponent<ECSEngine::LocationComponent>(tile, ECSEngine::LocationComponent({foreground.otlx + rowsX * foreground.ow, foreground.otly + rowsY * foreground.oh}));
 
                 ECSEngine::EntityID texID;
+                ECSEngine::CollisionComponent colision{};
+                colision.doesDamage = 0;
+
                 for (auto &e : foreground.entries) {
                     if (c == e.first) {
                         texID = e.second.id;
+                        //Sets the entities colision box
+                        colision.collisionBox = e.second.bounds;
+                        colision.previousCollisionBox = e.second.bounds;
                     }
                 }
 
                 entityManager.AddComponent<ECSEngine::SpriteComponent>(tile, ECSEngine::SpriteComponent(texID, ECSEngine::Rect({0,0}, foreground.ow, foreground.oh), true));
+
+                entityManager.AddComponent<ECSEngine::CollisionComponent>(tile, colision);
 
                 rowsX++;
             }
@@ -132,7 +144,7 @@ int main(int argc, char* argv[]) {
         }
     }
     // Place player
-
+    makePlayer(engine, entityManager, spriteManager);
     //
 
     // Setup score component
@@ -148,7 +160,6 @@ int main(int argc, char* argv[]) {
     for (int i = 0; i < 3; i ++) {
         std::string scoreName = "ScoreEntity" + std::to_string(i);
         score.digitID[i] = entityManager.CreateEntity(scoreName);
-        //TODO: FINISH ADDING COMPONENTS
         entityManager.AddComponent<ECSEngine::SpriteComponent>(score.digitID[i], ECSEngine::SpriteComponent(score.digitTextureID[0], ECSEngine::Rect({0, 0}, 64, 64), false));
         //Get sprite set location
         entityManager.AddComponent<ECSEngine::LocationComponent>(score.digitID[i], ECSEngine::LocationComponent(ECSEngine::Point2D({0 + 40 * i, 0})));
@@ -158,6 +169,14 @@ int main(int argc, char* argv[]) {
     entityManager.AddComponent<ECSEngine::ScoreComponent>(scoreEntity, score);
 
     // Setup Camera
+    auto cameraEntity = entityManager.CreateEntity("Camera");
+    ECSEngine::CameraComponent camera{};
+    //TODO: THIS IS JUST TEMP VALUE MAKE PROPER LATER
+    camera.position = ECSEngine::Point2D(0, 768/2);
+    camera.speed = 5;
+    ECSEngine::EntityID playerID = 12345678;
+    entityManager.AddComponent<ECSEngine::CameraComponent>(cameraEntity, camera);
+    entityManager.AddComponent<ECSEngine::CameraFollower>(cameraEntity, ECSEngine::CameraFollower(playerID));
 
     // Add all systems
     auto& sm = engine.GetSystemManager();
