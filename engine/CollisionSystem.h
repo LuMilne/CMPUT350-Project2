@@ -83,8 +83,8 @@ public:
 
             //Handle velocity based on side
             if (sideCollided == bottom) {
-                playerMovement.velocity.y = 0;
-                playerCol.onGround = 1;
+                //playerMovement.velocity.y = 0;
+                //playerCol.onGround = 1;
             } else if (sideCollided == top) {
                 playerMovement.velocity.y = 0;
                 playerCol.onCeiling = 1;
@@ -94,6 +94,15 @@ public:
             } else if (sideCollided == left) {
                 playerMovement.velocity.x = 0;
                 playerCol.onLeftWall = 1;
+            }
+
+            //Prevents Clipping while also properly maintaining collision
+            const Rect oldBox = window.WorldToWindow(playerCol.previousCollisionBox);
+
+            if (oldBox.topLeft.y + oldBox.height <= tileWindow.topLeft.y) {
+                playerLoc.loc.y -= bottom;
+                playerMovement.velocity.y = 0;
+                playerCol.onGround = 1;
             }
 
         }

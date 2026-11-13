@@ -26,12 +26,6 @@ public:
         auto& location = manager.template GetComponent<LocationComponent>(mEntityID);
         auto& gravity = manager.template GetComponent<GravityComponent>(mEntityID);
 
-        if (auto& collision = manager.template GetComponent<CollisionComponent>(mEntityID);
-            collision.onGround != 1) {
-            movement.velocity.y += gravity.acceleration.y;
-            std::cout << "movement.velocity.y = " << movement.velocity.y << std::endl;
-        }
-
         location.loc.x += movement.velocity.x;
         location.loc.y += movement.velocity.y;
 
