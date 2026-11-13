@@ -22,7 +22,7 @@ public:
     tSystemReturn Run(EngineView<Components...>* engine) override { 
         // Get window
         auto& winMg = engine->GetWindowManager();
-        auto& window = winMg.GetWindow();
+        auto window = winMg.GetWindow();
         // Get input component
         auto& entMg = engine->GetEntityManager();
         auto& inputStorage = entMg.GetComponentStorage<InputComponent>();
@@ -36,54 +36,52 @@ public:
         while(std::optional<sf::Event> event = window->pollEvent()) {
             // Populate InputComponent bitsets
             if(const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {    // Keypress events
-                playerInput.keydown[keyPressed->code] = 1;
+                playerInput.keydown[static_cast<std::size_t>(keyPressed->code)] = 1;
             }
         }
         // Process key events (keys pressed or new key released)
         if(playerInput.keydown.any() || (~playerInput.keydown & playerInput.lastKeydown).any()) {
             // Left/right keypress
-            if(playerInput.keyDown[Key::L] && playerInput.keyDown[Key::R]) {    // Simultaneous left/right commands cancel out
-                playerStop(player);
+            if(playerInput.keydown[Key::Left] && playerInput.keydown[Key::Right]) {    // Simultaneous left/right commands cancel out
+                std::cout << "L+R pressed, ";
+                playerStop();
             }
-            else if(playerInput.keyDown[Key::L]) {  // Move left
-                playerMove(player, false);
+            else if(playerInput.keydown[Key::Left]) {  // Move left
+                std::cout << "L pressed, ";
+                playerMove();
             }
-            else if(playerInput.keyDown[Key::R]) {  // Move right
-                playerMove(player, true);
+            else if(playerInput.keydown[Key::Right]) {  // Move right
+                std::cout << "R pressed, ";
+                playerMove();
             }
-            else if(playerInput.lastKeydown[Key::L] && playerInput.lastKeydown[Key::R]) {   // Movement keyRelease event
-                playerStop(player);
+            else if(playerInput.lastKeydown[Key::Left] && playerInput.lastKeydown[Key::Right]) {   // Movement keyRelease event
+                std::cout << "L/R released, ";
+                playerStop();
             }
             // Jump keypress
             if(playerInput.keydown[Key::Z] & ~playerInput.lastKeydown[Key::Z]) {   // New keypress
-                playerJump(player);
+                std::cout << "Jump pressed, ";
+                playerJump();
             }
-            else if(playerInput.keydown[Key::Z] & playerInput.lastKeydown[Key::Z]) {    // Keyhold
-
+            else if(~playerInput.keydown[Key::Z] & playerInput.lastKeydown[Key::Z]) {
+                std::cout << "Jump released, ";
+                playerFall();
             }
-            else {
-                playerFall(player);
-            }
+            std::cout << '\n';
         }
         return kContinue; 
     }
 private:
-    void playerMove(EntityManager::iterator player, bool right) {   // TODO: Implement acceleeration in horizontal movement (slower accel when airborne)
-        auto& movementComp = entMg.GetComponent<MovementComponent>(player->GetID());
-        if(right) {
-            movementComp.velocity.x = 3;
-        }
-        else {
-            movementComp.velocity.x = -3;
-        }
+    void playerMove() {   // TODO: Implement acceleeration in horizontal movement (slower accel when airborne)
+        
     }
-    void playerStop(EntityManager::iterator player) {
-        auto& movementComp = entMg.GetComponent<MovementComponent>(player->GetID());
-        movementComp.velocity = 0;
+    void playerStop() {
+        
     }
-    void playerJump(EntityManager::iterator player) {   // TODO: implement variable jump height
+    void playerJump() {   // TODO: implement variable jump height
+
     }
-    void playerFall(EntityManager::iterator player) {
+    void playerFall() {
 
     }
     float groundAccel = 4;
