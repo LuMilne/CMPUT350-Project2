@@ -65,7 +65,7 @@ public:
                 if(collComp.onRightWall != 0) playerStop(moveComp.velocity);
                 else playerMove(moveComp.velocity, true, aerial);
             }
-            else if(playerInput.lastKeydown[Key::Left] && playerInput.lastKeydown[Key::Right]) {   // Movement keyRelease event
+            else {   // Movement keyRelease event
                 playerStop(moveComp.velocity);
             }
             // Jump keypress
