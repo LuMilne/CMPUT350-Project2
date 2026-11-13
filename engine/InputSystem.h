@@ -34,45 +34,50 @@ public:
         playerInput.keydown.reset();
         // Poll for key events in window
         while(std::optional<sf::Event> event = window->pollEvent()) {
+            // Moved window close event handling from ECSEngine.h to here
+            if (event->is<sf::Event::Closed>()) {
+                window->close();
+            }
             // Populate InputComponent bitsets
-            if(const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {    // Keypress events
-                playerInput.keydown[static_cast<std::size_t>(keyPressed->code)] = 1;
+            else if(const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {    // Keypress events
+                std::cout << "key pressed!\n";
+                playerInput.keydown[static_cast<std::size_t>(keyPressed->scancode)] = 1;
             }
         }
         // Process key events (keys pressed or new key released)
         if(playerInput.keydown.any() || (~playerInput.keydown & playerInput.lastKeydown).any()) {
             // Left/right keypress
             if(playerInput.keydown[Key::Left] && playerInput.keydown[Key::Right]) {    // Simultaneous left/right commands cancel out
-                std::cout << "L+R pressed, ";
+                // std::cout << "L+R pressed, ";
                 playerStop();
             }
             else if(playerInput.keydown[Key::Left]) {  // Move left
-                std::cout << "L pressed, ";
+                // std::cout << "L pressed, ";
                 playerMove();
             }
             else if(playerInput.keydown[Key::Right]) {  // Move right
-                std::cout << "R pressed, ";
+                // std::cout << "R pressed, ";
                 playerMove();
             }
             else if(playerInput.lastKeydown[Key::Left] && playerInput.lastKeydown[Key::Right]) {   // Movement keyRelease event
-                std::cout << "L/R released, ";
+                // std::cout << "L/R released, ";
                 playerStop();
             }
             // Jump keypress
             if(playerInput.keydown[Key::Z] & ~playerInput.lastKeydown[Key::Z]) {   // New keypress
-                std::cout << "Jump pressed, ";
+                // std::cout << "Jump pressed, ";
                 playerJump();
             }
             else if(~playerInput.keydown[Key::Z] & playerInput.lastKeydown[Key::Z]) {
-                std::cout << "Jump released, ";
+                // std::cout << "Jump released, ";
                 playerFall();
             }
-            std::cout << '\n';
+            // std::cout << '\n';
         }
         return kContinue; 
     }
 private:
-    void playerMove() {   // TODO: Implement acceleeration in horizontal movement (slower accel when airborne)
+    void playerMove() {   // TODO: Implement acceleration in horizontal movement (slower accel when airborne)
         
     }
     void playerStop() {

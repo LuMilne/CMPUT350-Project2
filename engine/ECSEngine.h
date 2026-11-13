@@ -79,11 +79,6 @@ void ECSEngine<Components...>::Run() {
     while (window->isOpen()) {
         // Clear window for new frame
         window->clear(sf::Color::Black);
-        while (const std::optional event = window->pollEvent()) {
-            if (event->is<sf::Event::Closed>()) {
-                window->close();
-            }
-        }
         mSystemManager.Run(this);
         // Display window
         window->display();
