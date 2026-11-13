@@ -52,10 +52,13 @@ public:
         auto& playerLoc = manager.template GetComponent<LocationComponent>(mPlayerId);
         Rect playerBox = playerCol.collisionBox;
 
+        playerCol.onGround = playerCol.onCeiling = playerCol.onLeftWall = playerCol.onRightWall = 0;
+
         //Start Looping through the tiles
         for (EntityID e : mTiles) {
             const auto& tileCol = manager.template GetComponent<CollisionComponent>(e);
             const auto& tileLoc = manager.template GetComponent<LocationComponent>(e);
+
 
             //Convert to window coords to ensure both are in the same space. Then calc bounding boxes with location accounted for
             const Rect playerWindow = window.WorldToWindow(Rect(
@@ -78,7 +81,6 @@ public:
             float left = tileWindow.topLeft.x + tileWindow.width - playerWindow.topLeft.x;
             float sideCollided = std::min({bottom, top, right, left});
 
-            playerCol.onGround = playerCol.onCeiling = playerCol.onLeftWall = playerCol.onRightWall = 0;
             //Handle velocity based on side
             if (sideCollided == bottom) {
                 playerMovement.velocity.y = 0;
