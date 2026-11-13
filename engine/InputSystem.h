@@ -31,7 +31,6 @@ public:
         auto player = entMg.GetEntity(inputStorage.mapToEntity[0]);
         // Store and clear key events from previous frame
         playerInput.lastKeydown = playerInput.keydown;
-        playerInput.keydown.reset();
         // Poll for key events in window
         while(std::optional<sf::Event> event = window->pollEvent()) {
             // Moved window close event handling from ECSEngine.h to here
@@ -40,38 +39,40 @@ public:
             }
             // Populate InputComponent bitsets
             else if(const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {    // Keypress events
-                std::cout << "key pressed!\n";
+                // std::cout << "key pressed!\n";
                 playerInput.keydown[static_cast<std::size_t>(keyPressed->scancode)] = 1;
+            }
+            else if(const auto* keyReleased = event->getIf<sf::Event::KeyReleased>()) {    // Keyrelease events
+                playerInput.keydown[static_cast<std::size_t>(keyReleased->scancode)] = 0;
             }
         }
         // Process key events (keys pressed or new key released)
         if(playerInput.keydown.any() || (~playerInput.keydown & playerInput.lastKeydown).any()) {
             auto& moveComp = entMg.GetComponent<MovementComponent>(player->GetID());
             auto& gravComp = entMg.GetComponent<GravityComponent>(player->GetID());
+            auto& collComp = entMg.GetComponent<CollisionComponent>(player->GetID());
             // Left/right keypress
             if(playerInput.keydown[Key::Left] && playerInput.keydown[Key::Right]) {    // Simultaneous left/right commands cancel out
-                // std::cout << "L+R pressed, ";
-                playerStop();
+                playerStop(moveComp.velocity);
             }
             else if(playerInput.keydown[Key::Left]) {  // Move left
-                // std::cout << "L pressed, ";
-                playerMove();
+                bool aerial = (collComp.onGround == 0);
+                if(collComp.onLeftWall != 0) playerStop(moveComp.velocity);
+                else playerMove(moveComp.velocity, false, aerial);
             }
             else if(playerInput.keydown[Key::Right]) {  // Move right
-                // std::cout << "R pressed, ";
-                playerMove();
+                bool aerial = (collComp.onGround == 0);
+                if(collComp.onRightWall != 0) playerStop(moveComp.velocity);
+                playerMove(moveComp.velocity, true, aerial);
             }
             else if(playerInput.lastKeydown[Key::Left] && playerInput.lastKeydown[Key::Right]) {   // Movement keyRelease event
-                // std::cout << "L/R released, ";
-                playerStop();
+                playerStop(moveComp.velocity);
             }
             // Jump keypress
             if(playerInput.keydown[Key::Z] & ~playerInput.lastKeydown[Key::Z]) {   // New keypress
-                // std::cout << "Jump pressed, ";
                 playerJump();
             }
             else if(~playerInput.keydown[Key::Z] & playerInput.lastKeydown[Key::Z]) {
-                // std::cout << "Jump released, ";
                 playerFall();
             }
             // std::cout << '\n';
@@ -79,11 +80,14 @@ public:
         return kContinue; 
     }
 private:
-    void playerMove() {   // TODO: Implement acceleration in horizontal movement (slower accel when airborne)
-        
+    void playerMove(Point2D& velocity, bool right, bool aerial) {
+        float accel = kGroundRunAcceleration;
+        if(aerial) accel = kAirRunAcceleration;
+        if(!right) accel *= -1.0f;
+        velocity.x += accel;
     }
-    void playerStop() {
-        
+    void playerStop(Point2D& velocity) {
+        velocity.x = 0;
     }
     void playerJump() {   // TODO: implement variable jump height
 
@@ -91,8 +95,6 @@ private:
     void playerFall() {
 
     }
-    float groundAccel = 4;
-    float airAccel = 3;
 };
 
 }  // namespace ECSEngine
