@@ -41,6 +41,7 @@ public:
         auto& camera = manager.template GetComponent<CameraComponent>(mCameraID);
 
         //TODO: Add shake, Following, Clamping
+        camera.position.x += camera.speed;
 
         Point2D center = camera.position;
 
