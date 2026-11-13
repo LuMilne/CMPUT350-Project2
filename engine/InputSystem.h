@@ -25,7 +25,7 @@ public:
         auto window = winMg.GetWindow();
         // Get input component
         auto& entMg = engine->GetEntityManager();
-        auto& inputStorage = entMg.GetComponentStorage<InputComponent>();
+        auto& inputStorage = entMg.template GetComponentStorage<InputComponent>();
         InputComponent& playerInput = inputStorage.mStorage[0]; // Player should be first and only entity with InputComponent
         // Get player entity
         auto player = entMg.GetEntity(inputStorage.mapToEntity[0]);
@@ -50,7 +50,6 @@ public:
         if(playerInput.keydown.any() || (~playerInput.keydown & playerInput.lastKeydown).any()) {
             auto& moveComp = entMg.GetComponent<MovementComponent>(player->GetID());
             auto& gravComp = entMg.GetComponent<GravityComponent>(player->GetID());
-            auto& collComp = entMg.GetComponent<CollisionComponent>(player->GetID());
             // Left/right keypress
             if(playerInput.keydown[Key::Left] && playerInput.keydown[Key::Right]) {    // Simultaneous left/right commands cancel out
                 playerStop(moveComp.velocity);
@@ -70,9 +69,11 @@ public:
             }
             // Jump keypress
             if(playerInput.keydown[Key::Z] & ~playerInput.lastKeydown[Key::Z]) {   // New keypress
+                // std::cout << "Jump pressed, ";
                 playerJump();
             }
             else if(~playerInput.keydown[Key::Z] & playerInput.lastKeydown[Key::Z]) {
+                // std::cout << "Jump released, ";
                 playerFall();
             }
             // std::cout << '\n';
@@ -89,11 +90,14 @@ private:
     void playerStop(Point2D& velocity) {
         velocity.x = 0;
     }
-    void playerJump() {   // TODO: implement variable jump height
-
+    void playerJump(Point2D& vel) {// TODO: implement variable jump height
+        vel.y += -kJumpVelocity;
+        vel.y = std::clamp(vel.y, -kJumpVelocity, kJumpVelocity);
     }
-    void playerFall() {
-
+    void playerFall(Point2D& vel) {
+        if (vel.y < 0) {
+            vel.y = 0;
+        }
     }
 };
 
