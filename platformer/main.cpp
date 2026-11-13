@@ -33,7 +33,35 @@ using Engine = ECSEngine::ECSEngine<COMPONENTS>;
 void LoadMap(Engine& engine, const std::string& path, const std::string& file) {}
 
 void makePlayer(Engine& engine, ECSEngine::EntityManager<COMPONENTS>& entityManager, ECSEngine::SpriteManager& spriteManager) {
+    auto player = entityManager.CreateEntity("player");
 
+    auto texture = spriteManager.RegisterTexture(gResourcePath + "spritesheet-characters-default.png", ECSEngine::Rect({0,0}, 128, 128));
+
+    ECSEngine::SpriteComponent spriteComponent{};
+    spriteComponent.textureID = texture;
+    spriteComponent.bounds = ECSEngine::Rect({0,0}, 128, 128);
+    spriteComponent.worldSpace = true;
+    entityManager.AddComponent<ECSEngine::SpriteComponent>(player, spriteComponent);
+
+    ECSEngine::CollisionComponent collisionComponent{};
+    collisionComponent.collisionBox = ECSEngine::Rect({0,0}, 128, 128);
+    collisionComponent.previousCollisionBox = collisionComponent.collisionBox;
+    entityManager.AddComponent<ECSEngine::CollisionComponent>(player, collisionComponent);
+
+    ECSEngine::LocationComponent locationComponent{{768, 512}};
+    entityManager.AddComponent<ECSEngine::LocationComponent>(player, locationComponent);
+
+    ECSEngine::MovementComponent movementComponent{{0, 0}};
+    entityManager.AddComponent<ECSEngine::MovementComponent>(player, movementComponent);
+
+    ECSEngine::RespawnComponent respawnComponent{{768, 512}};
+    entityManager.AddComponent<ECSEngine::RespawnComponent>(player, respawnComponent);
+
+    ECSEngine::GravityComponent gravityComponent{{0.f, 9.81f}};
+    entityManager.AddComponent<ECSEngine::GravityComponent>(player, gravityComponent);
+
+    ECSEngine::InputComponent inputComponent{player};
+    entityManager.AddComponent<ECSEngine::InputComponent>(player, inputComponent);
 }
 
 int main(int argc, char* argv[]) {
