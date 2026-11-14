@@ -46,11 +46,16 @@ public:
                 playerInput.keydown[static_cast<std::size_t>(keyReleased->scancode)] = 0;
             }
         }
+        auto& gravComp = entMg.template GetComponent<GravityComponent>(player->GetID());
+        if (gravComp.disabledTimer != 0) {
+            return kContinue;
+        }
         // Process key events (keys pressed or new key released)
         if(playerInput.keydown.any() || (~playerInput.keydown & playerInput.lastKeydown).any()) {
             auto& collComp = entMg.template GetComponent<CollisionComponent>(player->GetID());
             auto& moveComp = entMg.template GetComponent<MovementComponent>(player->GetID());
-            auto& gravComp = entMg.template GetComponent<GravityComponent>(player->GetID());
+            auto& soundMg = engine->GetSoundManager();
+
             // Left/right keypress
             if(playerInput.keydown[Key::Left] && playerInput.keydown[Key::Right]) {    // Simultaneous left/right commands cancel out
                 playerStop(moveComp.velocity);
@@ -68,11 +73,18 @@ public:
             }
             // Jump keypress
             if(playerInput.keydown[Key::Z] & ~playerInput.lastKeydown[Key::Z]) {   // New keypress
-                // std::cout << "Jump pressed, ";
-                if(collComp.onGround != 0) playerJump(moveComp.velocity);
+                if (collComp.onLeftWall == 1 && collComp.onGround == 0) {
+                    playerJump(soundMg, moveComp.velocity);
+                    moveComp.velocity.x = 30;
+                    playerMove(moveComp.velocity, false, true);
+                } else if (collComp.onRightWall == 1 && collComp.onGround == 0) {
+                    playerJump(soundMg, moveComp.velocity);
+                    moveComp.velocity.x = -30;
+                    playerMove(moveComp.velocity, true, true);
+                }
+                if(collComp.onGround != 0) playerJump(soundMg, moveComp.velocity);
             }
             else if(~playerInput.keydown[Key::Z] & playerInput.lastKeydown[Key::Z]) {
-                // std::cout << "Jump released, ";
                 playerFall(moveComp.velocity);
             }
             // std::cout << '\n';
@@ -82,7 +94,27 @@ public:
                     playerFallFast(moveComp.velocity);
                 }
             }
+
+            if (playerInput.keydown[Key::C] & ~playerInput.lastKeydown[Key::C]) {
+                if (playerInput.lastDash == 0) {
+                    if ((collComp.onRightWall == 1 && collComp.onGround == 0) || (moveComp.velocity.x < 0 && collComp.onLeftWall == 0)) {
+                        float dir = -1;
+                        gravComp.disabledTimer = kDashInterval;
+                        playerInput.lastDash = 60;
+                        playerDash(soundMg, moveComp.velocity, dir);
+                    } else if ((collComp.onLeftWall == 1 && collComp.onGround == 0) || (moveComp.velocity.x > 0 && collComp.onRightWall == 0)) {
+                        float dir = 1;
+                        gravComp.disabledTimer = kDashInterval;
+                        playerInput.lastDash = 60;
+                        playerDash(soundMg, moveComp.velocity, dir);
+                    }
+                }
+            }
+
         }
+
+        if (playerInput.lastDash != 0) {playerInput.lastDash -= 1;}
+
         return kContinue; 
     }
 private:
@@ -95,7 +127,9 @@ private:
     void playerStop(Point2D& velocity) {
         velocity.x = 0;
     }
-    void playerJump(Point2D& vel) {
+    void playerJump(SoundManager& soundMg, Point2D& vel) {
+        auto& jumpSound = soundMg.GetSound("sfx_jump");
+        jumpSound.play();
         vel.y += -kJumpVelocity;
         vel.y = std::clamp(vel.y, -kJumpVelocity, kJumpVelocity);
     }
@@ -107,6 +141,12 @@ private:
 
     void playerFallFast(Point2D& vel) {
         vel.y += 5;
+    }
+
+    void playerDash(SoundManager& soundMg, Point2D& vel, float dir) {
+        auto& dashSound = soundMg.GetSound("laserLarge_000");
+        dashSound.play();
+        vel.x = kDashVelocity * dir;
     }
     float groundAccel = 4;
     float airAccel = 3;
