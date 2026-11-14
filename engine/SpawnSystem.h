@@ -44,8 +44,9 @@ public:
             readySpawners.push_back(entityID);
         }
 
+        // Randomize spawn velocity
         std::uniform_real_distribution<float> horizontalVelocity(-5.f, 5.f);
-        std::uniform_real_distribution<float> verticalVelocity(6.f, 12.f);
+        std::uniform_real_distribution<float> verticalVelocity(-20.f, -5.f);
         for (const EntityID spawnerID : readySpawners) {
             const auto& spawner = manager.template GetComponent<SpawnComponent>(spawnerID);
             const Point2D position = manager.template GetComponent<LocationComponent>(spawnerID).loc;
