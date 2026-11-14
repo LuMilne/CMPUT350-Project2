@@ -57,13 +57,11 @@ public:
             }
             else if(playerInput.keydown[Key::Left]) {  // Move left
                 bool aerial = (collComp.onGround == 0);
-                if(collComp.onLeftWall != 0) playerStop(moveComp.velocity);
-                else playerMove(moveComp.velocity, false, aerial);
+                playerMove(moveComp.velocity, false, aerial);
             }
             else if(playerInput.keydown[Key::Right]) {  // Move right
                 bool aerial = (collComp.onGround == 0);
-                if(collComp.onRightWall != 0) playerStop(moveComp.velocity);
-                else playerMove(moveComp.velocity, true, aerial);
+                playerMove(moveComp.velocity, true, aerial);
             }
             else {   // Movement keyRelease event
                 playerStop(moveComp.velocity);
@@ -78,6 +76,12 @@ public:
                 playerFall(moveComp.velocity);
             }
             // std::cout << '\n';
+            if(playerInput.keydown[Key::Down]) {  // Move Down Faster
+                bool aerial = (collComp.onGround == 0);
+                if (aerial) {
+                    playerFallFast(moveComp.velocity);
+                }
+            }
         }
         return kContinue; 
     }
@@ -99,6 +103,10 @@ private:
         if (vel.y < 0) {
             vel.y = 0;
         }
+    }
+
+    void playerFallFast(Point2D& vel) {
+        vel.y += 5;
     }
     float groundAccel = 4;
     float airAccel = 3;

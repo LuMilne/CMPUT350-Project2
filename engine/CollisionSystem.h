@@ -50,7 +50,6 @@ public:
         auto& playerCol = manager.template GetComponent<CollisionComponent>(mPlayerId);
         auto& playerMovement = manager.template GetComponent<MovementComponent>(mPlayerId);
         auto& playerLoc = manager.template GetComponent<LocationComponent>(mPlayerId);
-        Rect playerBox = playerCol.collisionBox;
 
         playerCol.onGround = playerCol.onCeiling = playerCol.onLeftWall = playerCol.onRightWall = 0;
 
@@ -79,32 +78,33 @@ public:
             float top = tileWindow.topLeft.y + tileWindow.height - playerWindow.topLeft.y;
             float right = playerWindow.topLeft.x + playerWindow.width - tileWindow.topLeft.x;
             float left = tileWindow.topLeft.x + tileWindow.width - playerWindow.topLeft.x;
-            float sideCollided = std::min({bottom, top, right, left});
 
-            //Handle velocity based on side
-            if (sideCollided == bottom) {
+            //Prevents Clipping while also properly maintaining collision
+            const Rect oldBox = window.WorldToWindow(playerCol.previousCollisionBox);
+
+            //Bottom Col
+            if (oldBox.topLeft.y + oldBox.height <= tileWindow.topLeft.y) {
+                playerLoc.loc.y -= window.WindowToWorld(bottom);
                 playerMovement.velocity.y = 0;
                 playerCol.onGround = 1;
-            } else if (sideCollided == top) {
-                playerMovement.velocity.y = 0;
-                playerCol.onCeiling = 1;
-            } else if (sideCollided == right) {
+            //Right Col
+            } else if (oldBox.topLeft.x + oldBox.width <= tileWindow.topLeft.x) {
+                playerLoc.loc.x -= window.WindowToWorld(right);
                 playerMovement.velocity.x = 0;
                 playerCol.onRightWall = 1;
-            } else if (sideCollided == left) {
+            //Left Col
+            } else if (oldBox.topLeft.x >= tileWindow.topLeft.x + tileWindow.width) {
+                playerLoc.loc.x += window.WindowToWorld(left);
                 playerMovement.velocity.x = 0;
                 playerCol.onLeftWall = 1;
+            //Top Col
+            } else if (oldBox.topLeft.y >= tileWindow.topLeft.y + tileWindow.height) {
+                playerLoc.loc.y += window.WindowToWorld(top);
+                playerMovement.velocity.y = 0;
+                playerCol.onCeiling = 1;
             }
 
         }
-
-
-        //bool collided = Collides(playerBox, tileBox);
-
-        // (collided) {
-        //    playerMovement.velocity.y = 0;
-        //}
-
 
         return kContinue;
     }
