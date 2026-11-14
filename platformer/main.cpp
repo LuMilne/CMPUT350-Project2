@@ -124,6 +124,12 @@ int main(int argc, char* argv[]) {
         soundManager.RegisterSound(gResourcePath + name + ".ogg", name);
     }
 
+    ECSEngine::SpriteManager& spriteManager = engine.GetSpriteManager();
+
+    //Make Stars
+    const auto stars = spriteManager.RegisterTexture(
+        gResourcePath + "spritesheet-tiles-default.png", ECSEngine::Rect({960, 192}, 64, 64));
+
     // Load maps
     ECSEngine::MapData background;
     ECSEngine::MapData foreground;
@@ -143,7 +149,6 @@ int main(int argc, char* argv[]) {
     }
 
     // Register parsed texture information into sprites
-    ECSEngine::SpriteManager& spriteManager = engine.GetSpriteManager();
     for (auto& it: background.entries) {
         it.second.id = spriteManager.RegisterTexture(it.second.path, it.second.source);
     }
@@ -200,6 +205,15 @@ int main(int argc, char* argv[]) {
                     if (c == e.first) {
                         texID = e.second.id;
                         if (c == 'S') {
+                            //Makes Spawner
+                            ECSEngine::SpawnComponent spawn{};
+                            spawn.spawnTextureID = stars;
+                            spawn.timeToNextSpawn = 60;
+                            spawn.timeBetweenSpawns = 120;
+                            spawn.totalSpawns = 999999;
+                            spawn.spawnType = "stars";
+                            entityManager.AddComponent<ECSEngine::SpawnComponent>(tile, spawn);
+
                             colision.staticEntity = 0;
                             continue;
                         } if (c == 'x') {
