@@ -41,7 +41,6 @@ public:
         auto& camera = manager.template GetComponent<CameraComponent>(mCameraID);
         auto& player = manager.template GetComponentStorage<CameraFollower>().mStorage[0].entityID;
 
-        //TODO: Add shake, Following, Clamping
         // camera.position.x += camera.speed;
 
         // Camera Follow
@@ -68,26 +67,40 @@ public:
             // Smooth-translate camera
             camera.position = lerp_x(
                 camera.position,
-                {camera.position.x + worldVec, camera.position.y}
+                {camera.position.x + worldVec, camera.position.y},
+                mv_alpha
             );
         }
+        auto& playerMovement = manager.template GetComponent<MovementComponent>(player);
         // If player is not moving, track within 40% margins
-        else if(playerNormLoc <= 0.4f || playerNormLoc >= 0.6f) {
-            auto& playerMovement = manager.template GetComponent<MovementComponent>(player);
-            if(playerMovement.velocity.x == 0.0f) {
-                // Smooth-center player
-                float normVec = getVectorToBoundary(playerNormLoc, 0.4f, 0.6f);
-                // Convert vector to world-coordinates
-                float worldVec = window.WindowToWorld(normVec * bounds.width);
-                // Smooth-translate camera
-                camera.position = lerp_x(
-                    camera.position,
-                    {camera.position.x + worldVec, camera.position.y}
-                );
-            }
+        if(playerMovement.velocity.x == 0.0f) {
+            // Smooth-center player
+            float normVec = getVectorToBoundary(playerNormLoc, 0.4f, 0.6f);
+            // Convert vector to world-coordinates
+            float worldVec = window.WindowToWorld(normVec * bounds.width);
+            // Smooth-translate camera
+            camera.position = lerp_x(
+                camera.position,
+                {camera.position.x + worldVec, camera.position.y},
+                st_alpha
+            );
         }
 
         Point2D center = camera.position;
+
+        // Apply camera shake if present
+        if(manager.template HasComponent<CameraShake>(mCameraID)){
+            auto& cameraShake = manager.template GetComponent<CameraShake>(mCameraID);
+            // Dampen shake as frames tick down
+            center = lerp(
+                center, 
+                {center.x + cameraShake.offset.x, center.y + cameraShake.offset.y}, 
+                float(cameraShake.frameLimit)/6.0f);
+            // Remove CameraShake at end of duration
+            if(--cameraShake.frameLimit <= 0) {
+                manager.template RemoveComponent<CameraShake>(mCameraID);
+            }
+        }
 
         window.SetWorldCenter(center);
 
@@ -96,10 +109,11 @@ public:
 
 private:
     EntityID mCameraID{};
-    float alpha = 0.3f;
+    float mv_alpha = 0.3f;
+    float st_alpha = 0.1f;
 
     /**
-     * @brief Returns smallest vector from min.max boundaries to location (along x-axis)
+     * @brief Returns smallest vector from min/max boundaries to location (along x-axis)
      * 
      * @param location the target point on the x-axis
      * @param min the minimum(leftmost) boundary
@@ -114,7 +128,13 @@ private:
         else return diffToMin;
     }
 
-    Point2D lerp_x(Point2D a, Point2D b) {
+    Point2D lerp(Point2D a, Point2D b, float alpha) {
+        return {
+            (1-alpha) * a.x + alpha * b.x,
+            (1-alpha) * a.y + alpha * b.y
+        };
+    }
+    Point2D lerp_x(Point2D a, Point2D b, float alpha) {
         return {
             (1-alpha) * a.x + alpha * b.x,
             a.y
