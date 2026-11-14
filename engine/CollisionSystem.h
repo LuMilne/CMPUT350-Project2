@@ -28,20 +28,27 @@ public:
         auto& manager = engine->GetEntityManager();
         auto& window = engine->GetWindowManager();
         std::vector<EntityID> mTiles;
-
-        for (auto& entities : manager) {
-            if (manager.template HasComponent<InputComponent>(entities.GetID())) {
-                mPlayerId = entities.GetID();
-            }
-        }
+        std::vector<EntityID> mStars;
 
         //Makes a list of our tiles
         for (auto& entities : manager) {
             const EntityID eID = entities.GetID();
-            if (manager.template HasComponent<CollisionComponent>(eID)) {
+            // Get Player entity
+            if (manager.template HasComponent<InputComponent>(eID)) {
+                mPlayerId = eID;
+            }
+            // Get tile entities
+            else if (manager.template HasComponent<CollisionComponent>(eID) 
+            && !manager.template HasComponent<MovementComponent>(eID)) {
                 if (manager.template GetComponent<CollisionComponent>(eID).staticEntity == 1) {
                     mTiles.push_back(eID);
                 }
+            }
+            // Get star entities
+            else if (manager.template HasComponent<MovementComponent>(eID) 
+            && manager.template HasComponent<CollisionComponent>(eID)
+            && eID != mPlayerId) {
+                mStars.push_back(eID);
             }
         }
 
@@ -110,8 +117,38 @@ public:
     }
 
 private:
-
-    EntityID mPlayerId;
+    float shakeThreshold = 20.0f;
+    float impactScale = 0.5f;
+    /**
+     * @brief Applies a ScreenShake component to the camera if player impacts an obstacle at speed
+     * 
+     * @param manager the entity manager
+     * @param velocity the player entity's current velocity
+     */
+    void screenShake(EngineView<Components...>* engine, EntityManager<Components...>& manager, Point2D velocity) {
+        velocity.y = std::max(velocity.y, 0.0f);
+        // Get scale of combined velocity
+        float totalVel = std::sqrt(velocity.x*velocity.x + velocity.y*velocity.y);
+        if(totalVel > shakeThreshold) {
+            auto& cameraStorage = manager.template GetComponentStorage<CameraComponent>();
+            auto& cameraID = cameraStorage.mapToEntity[0];
+            // Don't double-up on CameraShake objects
+            if(!manager.template HasComponent<CameraShake>(cameraID)) {
+                CameraShake cameraShake = {
+                    6,
+                    {
+                    velocity.x * impactScale,
+                    velocity.y * impactScale
+                    }
+                };
+                manager.template AddComponent<CameraShake>(cameraID, cameraShake);
+            }
+            auto& soundMg = engine->GetSoundManager();
+            auto& impactSound = soundMg.GetSound("footstep_grass_003");
+            impactSound.play();
+        }
+    }
+    EntityID mPlayerId = -1;
 
 };
 
