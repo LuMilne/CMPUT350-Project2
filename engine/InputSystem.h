@@ -69,7 +69,7 @@ public:
             // Jump keypress
             if(playerInput.keydown[Key::Z] & ~playerInput.lastKeydown[Key::Z]) {   // New keypress
                 // std::cout << "Jump pressed, ";
-                playerJump(moveComp.velocity);
+                if(collComp.onGround != 0) playerJump(moveComp.velocity);
             }
             else if(~playerInput.keydown[Key::Z] & playerInput.lastKeydown[Key::Z]) {
                 // std::cout << "Jump released, ";
@@ -90,12 +90,12 @@ private:
         float accel = kGroundRunAcceleration;
         if(aerial) accel = kAirRunAcceleration;
         if(!right) accel *= -1.0f;
-        velocity.x += accel;
+        velocity.x = std::clamp(velocity.x + accel, -kMaxRunVelocity, kMaxRunVelocity);
     }
     void playerStop(Point2D& velocity) {
         velocity.x = 0;
     }
-    void playerJump(Point2D& vel) {// TODO: implement variable jump height
+    void playerJump(Point2D& vel) {
         vel.y += -kJumpVelocity;
         vel.y = std::clamp(vel.y, -kJumpVelocity, kJumpVelocity);
     }
