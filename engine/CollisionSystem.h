@@ -2,6 +2,7 @@
 #include "InputComponent.h"
 #include "ScoreComponent.h"
 #include <algorithm>
+#include "EntityManager.h"
 namespace ECSEngine {
 
 template <typename... Components>
