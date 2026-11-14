@@ -71,7 +71,7 @@ public:
             // Jump keypress
             if(playerInput.keydown[Key::Z] & ~playerInput.lastKeydown[Key::Z]) {   // New keypress
                 // std::cout << "Jump pressed, ";
-                playerJump(moveComp.velocity);
+                if(collComp.onGround != 0) playerJump(moveComp.velocity);
             }
             else if(~playerInput.keydown[Key::Z] & playerInput.lastKeydown[Key::Z]) {
                 // std::cout << "Jump released, ";
@@ -91,7 +91,7 @@ private:
     void playerStop(Point2D& velocity) {
         velocity.x = 0;
     }
-    void playerJump(Point2D& vel) {// TODO: implement variable jump height
+    void playerJump(Point2D& vel) {
         vel.y += -kJumpVelocity;
         vel.y = std::clamp(vel.y, -kJumpVelocity, kJumpVelocity);
     }
