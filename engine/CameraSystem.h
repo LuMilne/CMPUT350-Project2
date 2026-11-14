@@ -68,23 +68,23 @@ public:
             // Smooth-translate camera
             camera.position = lerp_x(
                 camera.position,
-                {camera.position.x + worldVec, camera.position.y}
+                {camera.position.x + worldVec, camera.position.y},
+                mv_alpha
             );
         }
+        auto& playerMovement = manager.template GetComponent<MovementComponent>(player);
         // If player is not moving, track within 40% margins
-        else if(playerNormLoc <= 0.4f || playerNormLoc >= 0.6f) {
-            auto& playerMovement = manager.template GetComponent<MovementComponent>(player);
-            if(playerMovement.velocity.x == 0.0f) {
-                // Smooth-center player
-                float normVec = getVectorToBoundary(playerNormLoc, 0.4f, 0.6f);
-                // Convert vector to world-coordinates
-                float worldVec = window.WindowToWorld(normVec * bounds.width);
-                // Smooth-translate camera
-                camera.position = lerp_x(
-                    camera.position,
-                    {camera.position.x + worldVec, camera.position.y}
-                );
-            }
+        if(playerMovement.velocity.x == 0.0f) {
+            // Smooth-center player
+            float normVec = getVectorToBoundary(playerNormLoc, 0.4f, 0.6f);
+            // Convert vector to world-coordinates
+            float worldVec = window.WindowToWorld(normVec * bounds.width);
+            // Smooth-translate camera
+            camera.position = lerp_x(
+                camera.position,
+                {camera.position.x + worldVec, camera.position.y},
+                st_alpha
+            );
         }
 
         Point2D center = camera.position;
@@ -96,7 +96,8 @@ public:
 
 private:
     EntityID mCameraID{};
-    float alpha = 0.3f;
+    float mv_alpha = 0.3f;
+    float st_alpha = 0.1f;
 
     /**
      * @brief Returns smallest vector from min.max boundaries to location (along x-axis)
@@ -114,7 +115,7 @@ private:
         else return diffToMin;
     }
 
-    Point2D lerp_x(Point2D a, Point2D b) {
+    Point2D lerp_x(Point2D a, Point2D b, float alpha) {
         return {
             (1-alpha) * a.x + alpha * b.x,
             a.y
