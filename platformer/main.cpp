@@ -74,15 +74,15 @@ ECSEngine::EntityID makePlayer(Engine& engine, ECSEngine::EntityManager<COMPONEN
     auto player = entityManager.CreateEntity("player");
 
     auto texture = spriteManager.RegisterTexture(gResourcePath + "spritesheet-characters-default.png", ECSEngine::Rect({0,0}, 128, 128));
-
+    float playerScale = 0.7;
     ECSEngine::SpriteComponent spriteComponent{};
     spriteComponent.textureID = texture;
-    spriteComponent.bounds = ECSEngine::Rect({0,0}, 128, 128);
+    spriteComponent.bounds = ECSEngine::Rect({0,0}, 128 * playerScale, 128* playerScale);
     spriteComponent.worldSpace = true;
     entityManager.AddComponent<ECSEngine::SpriteComponent>(player, spriteComponent);
 
     ECSEngine::CollisionComponent collisionComponent{};
-    collisionComponent.collisionBox = ECSEngine::Rect({20,25}, 90, 100);
+    collisionComponent.collisionBox = ECSEngine::Rect({20 * playerScale,25 * playerScale}, 90 * playerScale, 100 * playerScale);
     collisionComponent.previousCollisionBox = collisionComponent.collisionBox;
     collisionComponent.staticEntity = 0;
     entityManager.AddComponent<ECSEngine::CollisionComponent>(player, collisionComponent);
@@ -249,7 +249,7 @@ int main(int argc, char* argv[]) {
     const auto playerLoc = entityManager.GetComponent<ECSEngine::LocationComponent>(player);
     ECSEngine::CameraComponent camera{};
     //TODO: THIS IS JUST TEMP VALUE MAKE PROPER LATER
-    camera.position = ECSEngine::Point2D(playerLoc.loc);
+    camera.position = ECSEngine::Point2D(playerLoc.loc.x, playerLoc.loc.y - 128);
     camera.speed = 0;
     entityManager.AddComponent<ECSEngine::CameraComponent>(cameraEntity, camera);
     entityManager.AddComponent<ECSEngine::CameraFollower>(cameraEntity, ECSEngine::CameraFollower(player));

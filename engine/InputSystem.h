@@ -71,11 +71,11 @@ public:
                 // std::cout << "Jump pressed, ";
                 if (collComp.onLeftWall == 1 && collComp.onGround == 0) {
                     playerJump(moveComp.velocity);
-                    moveComp.velocity.x = 15;
+                    moveComp.velocity.x = 30;
                     playerMove(moveComp.velocity, false, true);
                 } else if (collComp.onRightWall == 1 && collComp.onGround == 0) {
                     playerJump(moveComp.velocity);
-                    moveComp.velocity.x = -15;
+                    moveComp.velocity.x = -30;
                     playerMove(moveComp.velocity, true, true);
                 }
                 if(collComp.onGround != 0) playerJump(moveComp.velocity);
