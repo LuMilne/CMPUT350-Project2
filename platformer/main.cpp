@@ -82,7 +82,7 @@ ECSEngine::EntityID makePlayer(Engine& engine, ECSEngine::EntityManager<COMPONEN
     entityManager.AddComponent<ECSEngine::SpriteComponent>(player, spriteComponent);
 
     ECSEngine::CollisionComponent collisionComponent{};
-    collisionComponent.collisionBox = ECSEngine::Rect({0,0}, 128, 128);
+    collisionComponent.collisionBox = ECSEngine::Rect({20,25}, 90, 100);
     collisionComponent.previousCollisionBox = collisionComponent.collisionBox;
     collisionComponent.staticEntity = 0;
     entityManager.AddComponent<ECSEngine::CollisionComponent>(player, collisionComponent);
