@@ -39,9 +39,53 @@ public:
             }
         }
         auto& camera = manager.template GetComponent<CameraComponent>(mCameraID);
+        auto& player = manager.template GetComponentStorage<CameraFollower>().mStorage[0].entityID;
 
         //TODO: Add shake, Following, Clamping
-        camera.position.x += camera.speed;
+        // camera.position.x += camera.speed;
+
+        // Camera Follow
+        // Get player position on screen
+        const auto& playerLoc = manager.template GetComponent<LocationComponent>(player);
+        const Point2D playerScreenLoc = window.WorldToWindow(playerLoc.loc);
+        const Rect bounds = window.GetWindowBounds();
+        float playerNormLoc = playerScreenLoc.x / bounds.width;
+        // Check hard boundaries (outer 10% margins)
+        if(playerNormLoc <= 0.1f || playerNormLoc >= 0.9f) {
+            // Hard-track player
+            float normVec = getVectorToBoundary(playerNormLoc, 0.1f, 0.9f);
+            // Convert vector to world-coordinates
+            float worldVec = window.WindowToWorld(normVec * bounds.width);
+            // Hard-translate camera
+            camera.position.x += worldVec;
+        }
+        // Check soft boundaries (outer 30% margins)
+        else if(playerNormLoc <= 0.3f || playerNormLoc >= 0.7f) {
+            // Smooth-track player
+            float normVec = getVectorToBoundary(playerNormLoc, 0.3f, 0.7f);
+            // Convert vector to world-coordinates
+            float worldVec = window.WindowToWorld(normVec * bounds.width);
+            // Smooth-translate camera
+            camera.position = lerp_x(
+                camera.position,
+                {camera.position.x + worldVec, camera.position.y}
+            );
+        }
+        // If player is not moving, track within 40% margins
+        else if(playerNormLoc <= 0.4f || playerNormLoc >= 0.6f) {
+            auto& playerMovement = manager.template GetComponent<MovementComponent>(player);
+            if(playerMovement.velocity.x == 0.0f) {
+                // Smooth-center player
+                float normVec = getVectorToBoundary(playerNormLoc, 0.4f, 0.6f);
+                // Convert vector to world-coordinates
+                float worldVec = window.WindowToWorld(normVec * bounds.width);
+                // Smooth-translate camera
+                camera.position = lerp_x(
+                    camera.position,
+                    {camera.position.x + worldVec, camera.position.y}
+                );
+            }
+        }
 
         Point2D center = camera.position;
 
@@ -51,8 +95,31 @@ public:
     }
 
 private:
-    //TODO: GIVE PLAYER A CAMERA COMPONENT SO IT FOLLOWS
-EntityID mCameraID{};
+    EntityID mCameraID{};
+    float alpha = 0.3f;
+
+    /**
+     * @brief Returns smallest vector from min.max boundaries to location (along x-axis)
+     * 
+     * @param location the target point on the x-axis
+     * @param min the minimum(leftmost) boundary
+     * @param max the maximum(rightmost) boundary
+     * 
+     * @returns the difference from the closest boundary to the location
+     */
+    float getVectorToBoundary(float location, float min, float max) {
+        float diffToMin = location - min;
+        float diffToMax = location - max;
+        if(std::abs(diffToMax) < std::abs(diffToMin)) return diffToMax;
+        else return diffToMin;
+    }
+
+    Point2D lerp_x(Point2D a, Point2D b) {
+        return {
+            (1-alpha) * a.x + alpha * b.x,
+            a.y
+        };
+    }
 };
 
 }  // namespace ECSEngine

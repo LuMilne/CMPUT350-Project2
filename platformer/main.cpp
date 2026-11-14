@@ -70,7 +70,7 @@ using Engine = ECSEngine::ECSEngine<COMPONENTS>;
 
 void LoadMap(Engine& engine, const std::string& path, const std::string& file) {}
 
-void makePlayer(Engine& engine, ECSEngine::EntityManager<COMPONENTS>& entityManager, ECSEngine::SpriteManager& spriteManager) {
+ECSEngine::EntityID makePlayer(Engine& engine, ECSEngine::EntityManager<COMPONENTS>& entityManager, ECSEngine::SpriteManager& spriteManager) {
     auto player = entityManager.CreateEntity("player");
 
     auto texture = spriteManager.RegisterTexture(gResourcePath + "spritesheet-characters-default.png", ECSEngine::Rect({0,0}, 128, 128));
@@ -82,8 +82,9 @@ void makePlayer(Engine& engine, ECSEngine::EntityManager<COMPONENTS>& entityMana
     entityManager.AddComponent<ECSEngine::SpriteComponent>(player, spriteComponent);
 
     ECSEngine::CollisionComponent collisionComponent{};
-    collisionComponent.collisionBox = ECSEngine::Rect({0,0}, 128, 128);
+    collisionComponent.collisionBox = ECSEngine::Rect({20,25}, 90, 100);
     collisionComponent.previousCollisionBox = collisionComponent.collisionBox;
+    collisionComponent.staticEntity = 0;
     entityManager.AddComponent<ECSEngine::CollisionComponent>(player, collisionComponent);
 
     ECSEngine::LocationComponent locationComponent{{768, 512}};
@@ -95,11 +96,13 @@ void makePlayer(Engine& engine, ECSEngine::EntityManager<COMPONENTS>& entityMana
     ECSEngine::RespawnComponent respawnComponent{{768, 512}};
     entityManager.AddComponent<ECSEngine::RespawnComponent>(player, respawnComponent);
 
-    ECSEngine::GravityComponent gravityComponent{{0.f, 9.81f}};
+    ECSEngine::GravityComponent gravityComponent{{0.f, 2.f}};
     entityManager.AddComponent<ECSEngine::GravityComponent>(player, gravityComponent);
 
     ECSEngine::InputComponent inputComponent{player};
     entityManager.AddComponent<ECSEngine::InputComponent>(player, inputComponent);
+
+    return player;
 }
 
 int main(int argc, char* argv[]) {
@@ -190,10 +193,17 @@ int main(int argc, char* argv[]) {
                 ECSEngine::EntityID texID;
                 ECSEngine::CollisionComponent colision{};
                 colision.doesDamage = 0;
+                colision.staticEntity = 1;
 
                 for (auto &e : foreground.entries) {
                     if (c == e.first) {
                         texID = e.second.id;
+                        if (c == 'S') {
+                            colision.staticEntity = 0;
+                            continue;
+                        } if (c == 'x') {
+                            colision.doesDamage = 1;
+                        }
                         //Sets the entities colision box
                         colision.collisionBox = e.second.bounds;
                         colision.previousCollisionBox = e.second.bounds;
@@ -210,7 +220,7 @@ int main(int argc, char* argv[]) {
         }
     }
     // Place player
-    makePlayer(engine, entityManager, spriteManager);
+    auto player = makePlayer(engine, entityManager, spriteManager);
     //
 
     // Setup score component
@@ -236,13 +246,13 @@ int main(int argc, char* argv[]) {
 
     // Setup Camera
     auto cameraEntity = entityManager.CreateEntity("Camera");
+    const auto playerLoc = entityManager.GetComponent<ECSEngine::LocationComponent>(player);
     ECSEngine::CameraComponent camera{};
     //TODO: THIS IS JUST TEMP VALUE MAKE PROPER LATER
-    camera.position = ECSEngine::Point2D(0, 768/2);
-    camera.speed = 5;
-    ECSEngine::EntityID playerID = 12345678;
+    camera.position = ECSEngine::Point2D(playerLoc.loc);
+    camera.speed = 0;
     entityManager.AddComponent<ECSEngine::CameraComponent>(cameraEntity, camera);
-    entityManager.AddComponent<ECSEngine::CameraFollower>(cameraEntity, ECSEngine::CameraFollower(playerID));
+    entityManager.AddComponent<ECSEngine::CameraFollower>(cameraEntity, ECSEngine::CameraFollower(player));
 
     // Add all systems
     auto& sm = engine.GetSystemManager();
