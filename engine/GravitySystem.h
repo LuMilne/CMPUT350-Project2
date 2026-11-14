@@ -28,6 +28,11 @@ public:
 	        auto& gravity = manager.template GetComponent<GravityComponent>(entities);
 	        auto& movement = manager.template GetComponent<MovementComponent>(entities);
 
+	        if (gravity.disabledTimer != 0) {
+	            gravity.disabledTimer -= 1;
+	            movement.velocity.y = 0;
+	            continue;
+	        }
 	        if (collision.onGround == 0 && (collision.onLeftWall == 1 || collision.onRightWall == 1)) {
                 gravity.acceleration.y = 0.3;
 	            movement.velocity.y = std::min(movement.velocity.y + gravity.acceleration.y, 3.f);

@@ -46,11 +46,15 @@ public:
                 playerInput.keydown[static_cast<std::size_t>(keyReleased->scancode)] = 0;
             }
         }
+        auto& gravComp = entMg.template GetComponent<GravityComponent>(player->GetID());
+        if (gravComp.disabledTimer != 0) {
+            return kContinue;
+        }
         // Process key events (keys pressed or new key released)
         if(playerInput.keydown.any() || (~playerInput.keydown & playerInput.lastKeydown).any()) {
             auto& collComp = entMg.template GetComponent<CollisionComponent>(player->GetID());
             auto& moveComp = entMg.template GetComponent<MovementComponent>(player->GetID());
-            auto& gravComp = entMg.template GetComponent<GravityComponent>(player->GetID());
+
             // Left/right keypress
             if(playerInput.keydown[Key::Left] && playerInput.keydown[Key::Right]) {    // Simultaneous left/right commands cancel out
                 playerStop(moveComp.velocity);
@@ -91,7 +95,27 @@ public:
                     playerFallFast(moveComp.velocity);
                 }
             }
+
+            if (playerInput.keydown[Key::C] & ~playerInput.lastKeydown[Key::C]) {
+                if (playerInput.lastDash == 0) {
+                    if ((collComp.onRightWall == 1 && collComp.onGround == 0) || (moveComp.velocity.x < 0 && collComp.onLeftWall == 0)) {
+                        float dir = -1;
+                        gravComp.disabledTimer = kDashInterval;
+                        playerInput.lastDash = 60;
+                        playerDash(moveComp.velocity, dir);
+                    } else if ((collComp.onLeftWall == 1 && collComp.onGround == 0) || (moveComp.velocity.x > 0 && collComp.onRightWall == 0)) {
+                        float dir = 1;
+                        gravComp.disabledTimer = kDashInterval;
+                        playerInput.lastDash = 60;
+                        playerDash(moveComp.velocity, dir);
+                    }
+                }
+            }
+
         }
+
+        if (playerInput.lastDash != 0) {playerInput.lastDash -= 1;}
+
         return kContinue; 
     }
 private:
@@ -116,6 +140,10 @@ private:
 
     void playerFallFast(Point2D& vel) {
         vel.y += 5;
+    }
+
+    void playerDash(Point2D& vel, float dir) {
+        vel.x = kDashVelocity * dir;
     }
     float groundAccel = 4;
     float airAccel = 3;

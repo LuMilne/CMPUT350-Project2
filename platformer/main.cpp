@@ -100,6 +100,7 @@ ECSEngine::EntityID makePlayer(Engine& engine, ECSEngine::EntityManager<COMPONEN
     entityManager.AddComponent<ECSEngine::GravityComponent>(player, gravityComponent);
 
     ECSEngine::InputComponent inputComponent{player};
+    inputComponent.lastDash = 0;
     entityManager.AddComponent<ECSEngine::InputComponent>(player, inputComponent);
 
     return player;
