@@ -39,16 +39,16 @@ public:
                 --spawner.totalSpawns;
             }
 
-            const Point2D position = manager.template GetComponent<LocationComponent>(spawnerID);
+            const LocationComponent position = manager.template GetComponent<LocationComponent>(spawnerID);
             const SpriteID starSprite = spawner.spawnTextureID;
 
             //TODO: INSERT RANDOM DIRECTION (x and y)
             const float movX = -5, movY = 10;
 
             auto star = manager.CreateEntity("star");
-            manager.template AddComponent<LocationComponent>(position);
-            manager.template AddComponent<GravityComponent>({0, 2});
-            manager.template AddComponent<MovementComponent>({movX, movY});
+            manager.template AddComponent<LocationComponent>(star, position);
+            manager.template AddComponent<GravityComponent>(star, {0, 2});
+            manager.template AddComponent<MovementComponent>(star, MovementComponent{{movX, movY}});
             manager.template AddComponent<SpriteComponent>(star, SpriteComponent(starSprite, Rect({0, 0}, 64, 64), true));
 
             CollisionComponent collisionComp{};

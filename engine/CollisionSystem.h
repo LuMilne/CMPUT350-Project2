@@ -1,6 +1,7 @@
 #pragma once
 #include "InputComponent.h"
 #include <algorithm>
+#include "EntityManager.h"
 namespace ECSEngine {
 
 template <typename... Components>
