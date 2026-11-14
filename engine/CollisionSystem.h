@@ -87,11 +87,6 @@ public:
                 playerLoc.loc.y -= window.WindowToWorld(bottom);
                 playerMovement.velocity.y = 0;
                 playerCol.onGround = 1;
-            //Top Col
-            } else if (oldBox.topLeft.y >= tileWindow.topLeft.y + tileWindow.height) {
-                playerLoc.loc.y += window.WindowToWorld(top);
-                playerMovement.velocity.y = 0;
-                playerCol.onCeiling = 1;
             //Right Col
             } else if (oldBox.topLeft.x + oldBox.width <= tileWindow.topLeft.x) {
                 playerLoc.loc.x -= window.WindowToWorld(right);
@@ -102,6 +97,11 @@ public:
                 playerLoc.loc.x += window.WindowToWorld(left);
                 playerMovement.velocity.x = 0;
                 playerCol.onLeftWall = 1;
+            //Top Col
+            } else if (oldBox.topLeft.y >= tileWindow.topLeft.y + tileWindow.height) {
+                playerLoc.loc.y += window.WindowToWorld(top);
+                playerMovement.velocity.y = 0;
+                playerCol.onCeiling = 1;
             }
 
         }
