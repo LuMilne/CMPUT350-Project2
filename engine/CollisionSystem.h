@@ -84,25 +84,25 @@ public:
 
             //Bottom Col
             if (oldBox.topLeft.y + oldBox.height <= tileWindow.topLeft.y) {
-                screenShake(manager, playerMovement.velocity);
+                screenShake(engine, manager, playerMovement.velocity);
                 playerLoc.loc.y -= window.WindowToWorld(bottom);
                 playerMovement.velocity.y = 0;
                 playerCol.onGround = 1;
             //Right Col
             } else if (oldBox.topLeft.x + oldBox.width <= tileWindow.topLeft.x) {
-                screenShake(manager, playerMovement.velocity);
+                screenShake(engine, manager, playerMovement.velocity);
                 playerLoc.loc.x -= window.WindowToWorld(right);
                 playerMovement.velocity.x = 0;
                 playerCol.onRightWall = 1;
             //Left Col
             } else if (oldBox.topLeft.x >= tileWindow.topLeft.x + tileWindow.width) {
-                screenShake(manager, playerMovement.velocity);
+                screenShake(engine, manager, playerMovement.velocity);
                 playerLoc.loc.x += window.WindowToWorld(left);
                 playerMovement.velocity.x = 0;
                 playerCol.onLeftWall = 1;
             //Top Col
             } else if (oldBox.topLeft.y >= tileWindow.topLeft.y + tileWindow.height) {
-                screenShake(manager, playerMovement.velocity);
+                screenShake(engine, manager, playerMovement.velocity);
                 playerLoc.loc.y += window.WindowToWorld(top);
                 playerMovement.velocity.y = 0;
                 playerCol.onCeiling = 1;
@@ -122,7 +122,7 @@ private:
      * @param manager the entity manager
      * @param velocity the player entity's current velocity
      */
-    void screenShake(EntityManager<Components...>& manager, Point2D velocity) {
+    void screenShake(EngineView<Components...>* engine, EntityManager<Components...>& manager, Point2D velocity) {
         velocity.y = std::max(velocity.y, 0.0f);
         // Get scale of combined velocity
         float totalVel = std::sqrt(velocity.x*velocity.x + velocity.y*velocity.y);
@@ -140,6 +140,9 @@ private:
                 };
                 manager.template AddComponent<CameraShake>(cameraID, cameraShake);
             }
+            auto& soundMg = engine->GetSoundManager();
+            auto& impactSound = soundMg.GetSound("footstep_grass_003");
+            impactSound.play();
         }
     }
     EntityID mPlayerId;
