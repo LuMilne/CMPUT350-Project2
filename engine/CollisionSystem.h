@@ -60,7 +60,7 @@ public:
 
         playerCol.onGround = playerCol.onCeiling = playerCol.onLeftWall = playerCol.onRightWall = 0;
 
-        //Start Looping through the tiles
+        // Player-tile collisions
         for (EntityID e : mTiles) {
             const auto& tileCol = manager.template GetComponent<CollisionComponent>(e);
             const auto& tileLoc = manager.template GetComponent<LocationComponent>(e);
@@ -114,7 +114,13 @@ public:
                 playerMovement.velocity.y = 0;
                 playerCol.onCeiling = 1;
             }
-
+        }
+        // Star collisions
+        for(EntityID e : mStars) {
+            const auto& starCol = manager.template GetComponent<CollisionComponent>(e);
+            const auto& starLoc = manager.template GetComponent<LocationComponent>(e);
+            
+            // Star-Player collision
         }
 
         return kContinue;
