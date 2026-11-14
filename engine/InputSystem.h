@@ -69,6 +69,15 @@ public:
             // Jump keypress
             if(playerInput.keydown[Key::Z] & ~playerInput.lastKeydown[Key::Z]) {   // New keypress
                 // std::cout << "Jump pressed, ";
+                if (collComp.onLeftWall == 1 && collComp.onGround == 0) {
+                    playerJump(moveComp.velocity);
+                    moveComp.velocity.x = 15;
+                    playerMove(moveComp.velocity, false, true);
+                } else if (collComp.onRightWall == 1 && collComp.onGround == 0) {
+                    playerJump(moveComp.velocity);
+                    moveComp.velocity.x = -15;
+                    playerMove(moveComp.velocity, true, true);
+                }
                 if(collComp.onGround != 0) playerJump(moveComp.velocity);
             }
             else if(~playerInput.keydown[Key::Z] & playerInput.lastKeydown[Key::Z]) {
