@@ -90,7 +90,7 @@ private:
         float accel = kGroundRunAcceleration;
         if(aerial) accel = kAirRunAcceleration;
         if(!right) accel *= -1.0f;
-        velocity.x += accel;
+        velocity.x = std::clamp(velocity.x + accel, -kMaxRunVelocity, kMaxRunVelocity);
     }
     void playerStop(Point2D& velocity) {
         velocity.x = 0;
