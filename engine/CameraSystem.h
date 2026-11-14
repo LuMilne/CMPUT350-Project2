@@ -41,7 +41,6 @@ public:
         auto& camera = manager.template GetComponent<CameraComponent>(mCameraID);
         auto& player = manager.template GetComponentStorage<CameraFollower>().mStorage[0].entityID;
 
-        //TODO: Add shake, Following, Clamping
         // camera.position.x += camera.speed;
 
         // Camera Follow
@@ -89,6 +88,20 @@ public:
 
         Point2D center = camera.position;
 
+        // Apply camera shake if present
+        if(manager.template HasComponent<CameraShake>(mCameraID)){
+            auto& cameraShake = manager.template GetComponent<CameraShake>(mCameraID);
+            // Dampen shake as frames tick down
+            center = lerp(
+                center, 
+                {center.x + cameraShake.offset.x, center.y + cameraShake.offset.y}, 
+                float(cameraShake.frameLimit)/6.0f);
+            // Remove CameraShake at end of duration
+            if(--cameraShake.frameLimit <= 0) {
+                manager.template RemoveComponent<CameraShake>(mCameraID);
+            }
+        }
+
         window.SetWorldCenter(center);
 
         return kContinue;
@@ -100,7 +113,7 @@ private:
     float st_alpha = 0.1f;
 
     /**
-     * @brief Returns smallest vector from min.max boundaries to location (along x-axis)
+     * @brief Returns smallest vector from min/max boundaries to location (along x-axis)
      * 
      * @param location the target point on the x-axis
      * @param min the minimum(leftmost) boundary
@@ -115,6 +128,12 @@ private:
         else return diffToMin;
     }
 
+    Point2D lerp(Point2D a, Point2D b, float alpha) {
+        return {
+            (1-alpha) * a.x + alpha * b.x,
+            (1-alpha) * a.y + alpha * b.y
+        };
+    }
     Point2D lerp_x(Point2D a, Point2D b, float alpha) {
         return {
             (1-alpha) * a.x + alpha * b.x,
