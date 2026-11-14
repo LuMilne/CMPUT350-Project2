@@ -1,5 +1,6 @@
 #pragma once
 #include "InputComponent.h"
+#include "ScoreComponent.h"
 #include <algorithm>
 namespace ECSEngine {
 
@@ -60,7 +61,7 @@ public:
 
         playerCol.onGround = playerCol.onCeiling = playerCol.onLeftWall = playerCol.onRightWall = 0;
 
-        // Player-tile collisions
+        // Player-Tile collisions
         for (EntityID e : mTiles) {
             const auto& tileCol = manager.template GetComponent<CollisionComponent>(e);
             const auto& tileLoc = manager.template GetComponent<LocationComponent>(e);
@@ -80,34 +81,34 @@ public:
                 continue;
             }
 
-            //Check to see most likely collision direction
+            // Check to see most likely collision direction
             float bottom = playerWindow.topLeft.y + playerWindow.height - tileWindow.topLeft.y;
             float top = tileWindow.topLeft.y + tileWindow.height - playerWindow.topLeft.y;
             float right = playerWindow.topLeft.x + playerWindow.width - tileWindow.topLeft.x;
             float left = tileWindow.topLeft.x + tileWindow.width - playerWindow.topLeft.x;
 
-            //Prevents Clipping while also properly maintaining collision
+            // Prevents Clipping while also properly maintaining collision
             const Rect oldBox = window.WorldToWindow(playerCol.previousCollisionBox);
 
-            //Bottom Col
+            // Bottom Col
             if (oldBox.topLeft.y + oldBox.height <= tileWindow.topLeft.y) {
                 screenShake(engine, manager, playerMovement.velocity);
                 playerLoc.loc.y -= window.WindowToWorld(bottom);
                 playerMovement.velocity.y = 0;
                 playerCol.onGround = 1;
-            //Right Col
+            // Right Col
             } else if (oldBox.topLeft.x + oldBox.width <= tileWindow.topLeft.x) {
                 screenShake(engine, manager, playerMovement.velocity);
                 playerLoc.loc.x -= window.WindowToWorld(right);
                 playerMovement.velocity.x = 0;
                 playerCol.onRightWall = 1;
-            //Left Col
+            // Left Col
             } else if (oldBox.topLeft.x >= tileWindow.topLeft.x + tileWindow.width) {
                 screenShake(engine, manager, playerMovement.velocity);
                 playerLoc.loc.x += window.WindowToWorld(left);
                 playerMovement.velocity.x = 0;
                 playerCol.onLeftWall = 1;
-            //Top Col
+            // Top Col
             } else if (oldBox.topLeft.y >= tileWindow.topLeft.y + tileWindow.height) {
                 screenShake(engine, manager, playerMovement.velocity);
                 playerLoc.loc.y += window.WindowToWorld(top);
@@ -119,8 +120,103 @@ public:
         for(EntityID e : mStars) {
             const auto& starCol = manager.template GetComponent<CollisionComponent>(e);
             const auto& starLoc = manager.template GetComponent<LocationComponent>(e);
+            auto& starMove = manager.template GetComponent<MovementComponent>(e);
+
+            // Star bounding boxes
+            const Rect starWindow = window.WorldToWindow(Rect(
+                {starLoc.loc.x + starCol.collisionBox.topLeft.x, starLoc.loc.y + starCol.collisionBox.topLeft.y},
+                starCol.collisionBox.width, starCol.collisionBox.height));
             
             // Star-Player collision
+            const Rect playerWindow = window.WorldToWindow(Rect(
+                {playerLoc.loc.x + playerCol.collisionBox.topLeft.x, playerLoc.loc.y + playerCol.collisionBox.topLeft.y},
+                playerCol.collisionBox.width, playerCol.collisionBox.height));
+
+            if(Collides(starWindow, playerWindow)) {
+                // Play collect sound
+                auto& soundMg = engine->GetSoundManager();
+                auto& collectSound = soundMg.GetSound("sfx_gem");
+                collectSound.play();
+                // Increment score
+                auto& scoreComp = manager.template GetComponentStorage<ScoreComponent>();
+                auto& score = scoreComp.mStorage[0]; // Only one ScoreComponent is stored
+                score.score++;
+                // Destroy star
+                manager.RemoveEntity(e);
+            }
+
+            // Star-Tile collision
+            for(EntityID t: mTiles) {
+                const auto& tileCol = manager.template GetComponent<CollisionComponent>(t);
+                const auto& tileLoc = manager.template GetComponent<LocationComponent>(t);
+                const Rect tileWindow = window.WorldToWindow(Rect(
+                    {tileLoc.loc.x + tileCol.collisionBox.topLeft.x, tileLoc.loc.y + tileCol.collisionBox.topLeft.y},
+                    tileCol.collisionBox.width, tileCol.collisionBox.height));
+
+                if(!Collides(starWindow, tileWindow)) {
+                    continue;
+                }
+
+                //Check to see most likely collision direction
+                // float bottom = starWindow.topLeft.y + starWindow.height - tileWindow.topLeft.y;
+                // float top = tileWindow.topLeft.y + tileWindow.height - starWindow.topLeft.y;
+                // float right = starWindow.topLeft.x + starWindow.width - tileWindow.topLeft.x;
+                // float left = tileWindow.topLeft.x + tileWindow.width - starWindow.topLeft.x;
+
+                //Prevents Clipping while also properly maintaining collision
+                const Rect oldBox = window.WorldToWindow(starCol.previousCollisionBox);
+
+                //Bottom Col
+                if (oldBox.topLeft.y + oldBox.height <= tileWindow.topLeft.y) {
+                    starMove.velocity.y *= -1;
+                //Right Col
+                } else if (oldBox.topLeft.x + oldBox.width <= tileWindow.topLeft.x) {
+                    starMove.velocity.x *= -1;
+                //Left Col
+                } else if (oldBox.topLeft.x >= tileWindow.topLeft.x + tileWindow.width) {
+                    starMove.velocity.x *= -1;
+                //Top Col
+                } else if (oldBox.topLeft.y >= tileWindow.topLeft.y + tileWindow.height) {
+                    starMove.velocity.y *= -1;
+                }
+            }
+
+            // Star-Star Collision
+            for(EntityID s: mStars) {
+                if(e == s) continue;    // No self-collision
+                const auto& otherCol = manager.template GetComponent<CollisionComponent>(s);
+                const auto& otherLoc = manager.template GetComponent<LocationComponent>(s);
+                const Rect otherWindow = window.WorldToWindow(Rect(
+                    {otherLoc.loc.x + otherCol.collisionBox.topLeft.x, otherLoc.loc.y + otherCol.collisionBox.topLeft.y},
+                    otherCol.collisionBox.width, otherCol.collisionBox.height));
+
+                if(!Collides(starWindow, otherWindow)) {
+                    continue;
+                }
+
+                //Check to see most likely collision direction
+                // float bottom = starWindow.topLeft.y + starWindow.height - otherWindow.topLeft.y;
+                // float top = otherWindow.topLeft.y + otherWindow.height - starWindow.topLeft.y;
+                // float right = starWindow.topLeft.x + starWindow.width - otherWindow.topLeft.x;
+                // float left = otherWindow.topLeft.x + otherWindow.width - starWindow.topLeft.x;
+
+                //Prevents Clipping while also properly maintaining collision
+                const Rect oldBox = window.WorldToWindow(starCol.previousCollisionBox);
+
+                //Bottom Col
+                if (oldBox.topLeft.y + oldBox.height <= otherWindow.topLeft.y) {
+                    starMove.velocity.y *= -1;
+                //Right Col
+                } else if (oldBox.topLeft.x + oldBox.width <= otherWindow.topLeft.x) {
+                    starMove.velocity.x *= -1;
+                //Left Col
+                } else if (oldBox.topLeft.x >= otherWindow.topLeft.x + otherWindow.width) {
+                    starMove.velocity.x *= -1;
+                //Top Col
+                } else if (oldBox.topLeft.y >= otherWindow.topLeft.y + otherWindow.height) {
+                    starMove.velocity.y *= -1;
+                }
+            }
         }
 
         return kContinue;
@@ -158,7 +254,7 @@ private:
             impactSound.play();
         }
     }
-    EntityID mPlayerId = -1;
+    EntityID mPlayerId = size_t(-1);
 
 };
 

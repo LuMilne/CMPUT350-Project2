@@ -10,7 +10,7 @@ namespace ECSEngine {
 struct Point2D {
     float x, y;
     Point2D(float x = 0, float y = 0) : x(x), y(y) {}
-    Point2D(int x, int y) : x(x), y(y) {}
+    Point2D(int x, int y) : x(float(x)), y(float(y)) {}
 };
 
 [[maybe_unused]] static std::ostream& operator<<(std::ostream& os, const Point2D& p) {

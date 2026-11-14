@@ -99,12 +99,12 @@ public:
                 if (playerInput.lastDash == 0) {
                     if ((collComp.onRightWall == 1 && collComp.onGround == 0) || (moveComp.velocity.x < 0 && collComp.onLeftWall == 0)) {
                         float dir = -1;
-                        gravComp.disabledTimer = kDashInterval;
+                        gravComp.disabledTimer = int(kDashInterval);
                         playerInput.lastDash = 60;
                         playerDash(soundMg, moveComp.velocity, dir);
                     } else if ((collComp.onLeftWall == 1 && collComp.onGround == 0) || (moveComp.velocity.x > 0 && collComp.onRightWall == 0)) {
                         float dir = 1;
-                        gravComp.disabledTimer = kDashInterval;
+                        gravComp.disabledTimer = int(kDashInterval);
                         playerInput.lastDash = 60;
                         playerDash(soundMg, moveComp.velocity, dir);
                     }

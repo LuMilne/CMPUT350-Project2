@@ -11,18 +11,21 @@ public:
     }
 
     tSystemReturn Run(EngineView<Components...>* engine) override {
-
+/*
         auto& manager = engine->GetEntityManager();
 
+        // Search for spawning entities
         for (const auto& entities : manager) {
             const EntityID entityID = entities.GetID();
 
+            // Skip non-spawning entities
             if (!manager.template HasComponent<SpawnComponent>(entityID)) {
                 continue;
             }
 
+            // Skip entities that are 
             auto& spawnComponent = manager.template GetComponent<SpawnComponent>(entityID);
-            if (spawnComponent.totalSpawns <=0 || spawnComponent.timeToNextSpawn > 0) {
+            if (spawnComponent.totalSpawns <=0 || spawnComponent.timeToNextSpawn-- > 0) {
                 continue;
             }
 
@@ -39,16 +42,16 @@ public:
                 --spawner.totalSpawns;
             }
 
-            const Point2D position = manager.template GetComponent<LocationComponent>(spawnerID);
+            const Point2D position = manager.template GetComponent<LocationComponent>(spawnerID).loc;
             const SpriteID starSprite = spawner.spawnTextureID;
 
             //TODO: INSERT RANDOM DIRECTION (x and y)
             const float movX = -5, movY = 10;
 
             auto star = manager.CreateEntity("star");
-            manager.template AddComponent<LocationComponent>(position);
-            manager.template AddComponent<GravityComponent>({0, 2});
-            manager.template AddComponent<MovementComponent>({movX, movY});
+            manager.template AddComponent<LocationComponent>(star, LocationComponent{position});
+            manager.template AddComponent<GravityComponent>(star, GravityComponent{{0.f, 2.f}});
+            manager.template AddComponent<MovementComponent>(star, MovementComponent{{movX, movY}});
             manager.template AddComponent<SpriteComponent>(star, SpriteComponent(starSprite, Rect({0, 0}, 64, 64), true));
 
             CollisionComponent collisionComp{};
@@ -57,7 +60,7 @@ public:
             collisionComp.previousCollisionBox = collisionComp.collisionBox;
             manager.template AddComponent<CollisionComponent>(star, collisionComp);
         }
-
+*/
         return kContinue;
     }
 

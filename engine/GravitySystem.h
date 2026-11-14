@@ -12,7 +12,7 @@ public:
 	tSystemReturn Run(EngineView<Components...> *engine) override
 	{
 	    auto& manager = engine->GetEntityManager();
-	    auto& window = engine->GetWindowManager();
+	    // auto& window = engine->GetWindowManager();
 	    std::vector<EntityID> mEntityID;
 
 	    for (auto& entities : manager) {
@@ -34,7 +34,7 @@ public:
 	            continue;
 	        }
 	        if (collision.onGround == 0 && (collision.onLeftWall == 1 || collision.onRightWall == 1)) {
-                gravity.acceleration.y = 0.3;
+                gravity.acceleration.y = 0.3f;
 	            movement.velocity.y = std::min(movement.velocity.y + gravity.acceleration.y, 3.f);
 	        } else {
 	            gravity.acceleration.y = 2;

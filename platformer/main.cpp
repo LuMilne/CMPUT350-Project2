@@ -68,13 +68,13 @@ std::string gResourcePath = getAssetPath();
         ECSEngine::CameraShake, ECSEngine::ScoreComponent, ECSEngine::RespawnComponent
 using Engine = ECSEngine::ECSEngine<COMPONENTS>;
 
-void LoadMap(Engine& engine, const std::string& path, const std::string& file) {}
+// void LoadMap(Engine& engine, const std::string& path, const std::string& file) {}
 
-ECSEngine::EntityID makePlayer(Engine& engine, ECSEngine::EntityManager<COMPONENTS>& entityManager, ECSEngine::SpriteManager& spriteManager) {
+ECSEngine::EntityID makePlayer(ECSEngine::EntityManager<COMPONENTS>& entityManager, ECSEngine::SpriteManager& spriteManager) {
     auto player = entityManager.CreateEntity("player");
 
     auto texture = spriteManager.RegisterTexture(gResourcePath + "spritesheet-characters-default.png", ECSEngine::Rect({0,0}, 128, 128));
-    float playerScale = 0.7;
+    float playerScale = 0.7f;
     ECSEngine::SpriteComponent spriteComponent{};
     spriteComponent.textureID = texture;
     spriteComponent.bounds = ECSEngine::Rect({0,0}, 128 * playerScale, 128* playerScale);
@@ -235,7 +235,7 @@ int main(int argc, char* argv[]) {
         }
     }
     // Place player
-    auto player = makePlayer(engine, entityManager, spriteManager);
+    auto player = makePlayer(entityManager, spriteManager);
     //
 
     // Setup score component
