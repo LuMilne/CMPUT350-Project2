@@ -31,6 +31,7 @@ public:
         auto& window = engine->GetWindowManager();
         std::vector<EntityID> mTiles;
         std::vector<EntityID> mStars;
+        std::vector<EntityID> removed;
 
         //Makes a list of our tiles
         for (auto& entities : manager) {
@@ -120,7 +121,7 @@ public:
         // Star collisions
         for(EntityID e : mStars) {
             const auto& starCol = manager.template GetComponent<CollisionComponent>(e);
-            const auto& starLoc = manager.template GetComponent<LocationComponent>(e);
+            auto& starLoc = manager.template GetComponent<LocationComponent>(e);
             auto& starMove = manager.template GetComponent<MovementComponent>(e);
 
             // Star bounding boxes
@@ -143,7 +144,9 @@ public:
                 auto& score = scoreComp.mStorage[0]; // Only one ScoreComponent is stored
                 score.score++;
                 // Destroy star
+                removed.push_back(e);
                 manager.RemoveEntity(e);
+                continue;
             }
 
             // Star-Tile collision
@@ -159,32 +162,41 @@ public:
                 }
 
                 //Check to see most likely collision direction
-                // float bottom = starWindow.topLeft.y + starWindow.height - tileWindow.topLeft.y;
-                // float top = tileWindow.topLeft.y + tileWindow.height - starWindow.topLeft.y;
-                // float right = starWindow.topLeft.x + starWindow.width - tileWindow.topLeft.x;
-                // float left = tileWindow.topLeft.x + tileWindow.width - starWindow.topLeft.x;
+                float bottom = starWindow.topLeft.y + starWindow.height - tileWindow.topLeft.y;
+                float top = tileWindow.topLeft.y + tileWindow.height - starWindow.topLeft.y;
+                float right = starWindow.topLeft.x + starWindow.width - tileWindow.topLeft.x;
+                float left = tileWindow.topLeft.x + tileWindow.width - starWindow.topLeft.x;
 
                 //Prevents Clipping while also properly maintaining collision
                 const Rect oldBox = window.WorldToWindow(starCol.previousCollisionBox);
 
                 //Bottom Col
                 if (oldBox.topLeft.y + oldBox.height <= tileWindow.topLeft.y) {
+                    starLoc.loc.y -= window.WindowToWorld(bottom);
                     starMove.velocity.y *= -1;
+                    break;  // One tile collision per frame
                 //Right Col
                 } else if (oldBox.topLeft.x + oldBox.width <= tileWindow.topLeft.x) {
+                    starLoc.loc.y -= window.WindowToWorld(right);
                     starMove.velocity.x *= -1;
+                    break;  // One tile collision per frame
                 //Left Col
                 } else if (oldBox.topLeft.x >= tileWindow.topLeft.x + tileWindow.width) {
+                    starLoc.loc.y -= window.WindowToWorld(left);
                     starMove.velocity.x *= -1;
+                    break;  // One tile collision per frame
                 //Top Col
                 } else if (oldBox.topLeft.y >= tileWindow.topLeft.y + tileWindow.height) {
+                    starLoc.loc.y -= window.WindowToWorld(top);
                     starMove.velocity.y *= -1;
+                    break;  // One tile collision per frame
                 }
             }
 
             // Star-Star Collision
             for(EntityID s: mStars) {
                 if(e == s) continue;    // No self-collision
+                if(std::find(removed.begin(), removed.end(), s) != removed.end()) continue;  // Ignore deleted stars
                 const auto& otherCol = manager.template GetComponent<CollisionComponent>(s);
                 const auto& otherLoc = manager.template GetComponent<LocationComponent>(s);
                 const Rect otherWindow = window.WorldToWindow(Rect(
@@ -194,12 +206,6 @@ public:
                 if(!Collides(starWindow, otherWindow)) {
                     continue;
                 }
-
-                //Check to see most likely collision direction
-                // float bottom = starWindow.topLeft.y + starWindow.height - otherWindow.topLeft.y;
-                // float top = otherWindow.topLeft.y + otherWindow.height - starWindow.topLeft.y;
-                // float right = starWindow.topLeft.x + starWindow.width - otherWindow.topLeft.x;
-                // float left = otherWindow.topLeft.x + otherWindow.width - starWindow.topLeft.x;
 
                 //Prevents Clipping while also properly maintaining collision
                 const Rect oldBox = window.WorldToWindow(starCol.previousCollisionBox);
